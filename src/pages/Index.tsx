@@ -6,12 +6,13 @@ import { HealthBar } from '@/components/game/HealthBar';
 import { GameGrid } from '@/components/game/GameGrid';
 import { ToolBar } from '@/components/game/ToolBar';
 import { Museum } from '@/components/game/Museum';
+import { Shop } from '@/components/game/Shop';
 import { HelpModal } from '@/components/game/HelpModal';
 import { DiscoveryModal } from '@/components/game/DiscoveryModal';
 import { FailModal } from '@/components/game/FailModal';
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState<'dig' | 'museum'>('dig');
+  const [activeTab, setActiveTab] = useState<'dig' | 'museum' | 'shop'>('dig');
   const [showHelp, setShowHelp] = useState(false);
   
   const {
@@ -22,6 +23,9 @@ const Index = () => {
     setCurrentTool,
     hp,
     score,
+    ownedItems,
+    hasShield,
+    doublePoints,
     museumCollection,
     showDiscoveryModal,
     showFailModal,
@@ -30,6 +34,7 @@ const Index = () => {
     handleCellClick,
     collectArtifact,
     restartLevel,
+    purchaseItem,
     getRowHints,
     getColHints,
   } = useGame();
@@ -43,6 +48,7 @@ const Index = () => {
       <div className="retro-box max-w-[500px] w-full h-[95vh] flex flex-col">
         <GameHeader 
           eraName={currentEra.name} 
+          score={score}
           onHelpClick={() => setShowHelp(true)} 
         />
         
@@ -56,9 +62,17 @@ const Index = () => {
                 <div className="text-xs font-bold text-gray-500 uppercase">תקופה</div>
                 <div className="font-black text-lg text-amber-700">{currentEra.name}</div>
               </div>
-              <div className="flex flex-col items-center">
-                <div className="text-xs font-bold text-gray-500 uppercase">ניקוד</div>
-                <div className="font-black text-2xl text-amber-600">⭐ {score}</div>
+              <div className="flex gap-2">
+                {hasShield && (
+                  <div className="bg-blue-100 border-2 border-blue-400 px-2 py-1 text-sm font-bold" title="מגן פעיל">
+                    🛡️
+                  </div>
+                )}
+                {doublePoints && (
+                  <div className="bg-yellow-100 border-2 border-yellow-400 px-2 py-1 text-sm font-bold" title="נקודות כפולות">
+                    ✨x2
+                  </div>
+                )}
               </div>
               <div className="flex flex-col items-end">
                 <div className="text-xs font-bold text-gray-500 mb-1">עמידות כלים</div>
@@ -80,8 +94,10 @@ const Index = () => {
             {/* Tool Bar */}
             <ToolBar currentTool={currentTool} onToolChange={setCurrentTool} />
           </div>
-        ) : (
+        ) : activeTab === 'museum' ? (
           <Museum collection={museumCollection} />
+        ) : (
+          <Shop score={score} onPurchase={purchaseItem} ownedItems={ownedItems} />
         )}
 
         {/* Modals */}

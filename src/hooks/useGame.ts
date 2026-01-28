@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { ERAS, CellData, CollectedArtifact, Artifact } from '@/data/gameData';
+import { ShopItem } from '@/data/shopData';
 
 export type Tool = 'dig' | 'flag';
 
@@ -14,6 +15,9 @@ export const useGame = () => {
   const [isGameActive, setIsGameActive] = useState(true);
   const [museumCollection, setMuseumCollection] = useState<CollectedArtifact[]>([]);
   const [score, setScore] = useState(0);
+  const [ownedItems, setOwnedItems] = useState<string[]>([]);
+  const [hasShield, setHasShield] = useState(false);
+  const [doublePoints, setDoublePoints] = useState(false);
   const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
   const [showFailModal, setShowFailModal] = useState(false);
   const [lastFoundArtifact, setLastFoundArtifact] = useState<CollectedArtifact | null>(null);
@@ -101,7 +105,9 @@ export const useGame = () => {
       
       if (newFound === artifactsTotal) {
         setIsGameActive(false);
-        setScore(prev => prev + 1); // Add a point!
+        const pointsToAdd = doublePoints ? 2 : 1;
+        setScore(prev => prev + pointsToAdd);
+        setDoublePoints(false); // Reset double points after use
         setTimeout(() => {
           const era = ERAS[currentEraIndex];
           const artifact = era.artifacts[currentArtifactIndex % era.artifacts.length];
@@ -112,15 +118,71 @@ export const useGame = () => {
     } else {
       newGridData[r][c] = { ...cellData, state: 'revealed' };
       setGridData(newGridData);
-      const newHp = hp - 15;
-      setHp(newHp);
       
-      if (newHp <= 0) {
-        setIsGameActive(false);
-        setShowFailModal(true);
+      if (hasShield) {
+        setHasShield(false); // Use the shield
+      } else {
+        const newHp = hp - 15;
+        setHp(newHp);
+        
+        if (newHp <= 0) {
+          setIsGameActive(false);
+          setShowFailModal(true);
+        }
       }
     }
-  }, [isGameActive, gridData, currentTool, artifactsFound, artifactsTotal, hp, currentEraIndex, currentArtifactIndex]);
+  }, [isGameActive, gridData, currentTool, artifactsFound, artifactsTotal, hp, currentEraIndex, currentArtifactIndex, hasShield, doublePoints]);
+
+  const purchaseItem = useCallback((item: ShopItem) => {
+    if (score < item.price || ownedItems.includes(item.id)) return;
+    
+    setScore(prev => prev - item.price);
+    
+    switch (item.id) {
+      case 'heal':
+        setHp(prev => Math.min(100, prev + 30));
+        break;
+      case 'shield':
+        setHasShield(true);
+        setOwnedItems(prev => [...prev, item.id]);
+        break;
+      case 'hint':
+        // Find a safe cell (no artifact) and reveal it
+        for (let r = 0; r < gridSize; r++) {
+          for (let c = 0; c < gridSize; c++) {
+            if (gridData[r][c].state === 'hidden' && !gridData[r][c].hasArtifact) {
+              const newGridData = [...gridData.map(row => [...row])];
+              newGridData[r][c] = { ...gridData[r][c], state: 'revealed' };
+              setGridData(newGridData);
+              return;
+            }
+          }
+        }
+        break;
+      case 'xray':
+        // Temporarily show all artifacts
+        const xrayGrid = gridData.map(row => 
+          row.map(cell => cell.hasArtifact && cell.state === 'hidden' 
+            ? { ...cell, state: 'revealed' as const } 
+            : cell
+          )
+        );
+        setGridData(xrayGrid);
+        setTimeout(() => {
+          setGridData(prev => prev.map(row => 
+            row.map(cell => cell.hasArtifact && cell.state === 'revealed' 
+              ? { ...cell, state: 'hidden' as const } 
+              : cell
+            )
+          ));
+        }, 1500);
+        break;
+      case 'golden_trowel':
+        setDoublePoints(true);
+        setOwnedItems(prev => [...prev, item.id]);
+        break;
+    }
+  }, [score, ownedItems, gridData, gridSize]);
 
   const collectArtifact = useCallback(() => {
     if (lastFoundArtifact) {
@@ -154,6 +216,9 @@ export const useGame = () => {
 
   const restartLevel = useCallback(() => {
     setShowFailModal(false);
+    setOwnedItems(prev => prev.filter(id => id !== 'shield' && id !== 'golden_trowel'));
+    setHasShield(false);
+    setDoublePoints(false);
     initGame();
   }, [initGame]);
 
@@ -181,6 +246,9 @@ export const useGame = () => {
     setCurrentTool,
     hp,
     score,
+    ownedItems,
+    hasShield,
+    doublePoints,
     artifactsTotal,
     artifactsFound,
     isGameActive,
@@ -192,6 +260,7 @@ export const useGame = () => {
     handleCellClick,
     collectArtifact,
     restartLevel,
+    purchaseItem,
     getRowHints,
     getColHints,
     setShowDiscoveryModal,
