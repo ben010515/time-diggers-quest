@@ -13,6 +13,7 @@ export const useGame = () => {
   const [artifactsFound, setArtifactsFound] = useState(0);
   const [isGameActive, setIsGameActive] = useState(true);
   const [museumCollection, setMuseumCollection] = useState<CollectedArtifact[]>([]);
+  const [score, setScore] = useState(0);
   const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
   const [showFailModal, setShowFailModal] = useState(false);
   const [lastFoundArtifact, setLastFoundArtifact] = useState<CollectedArtifact | null>(null);
@@ -100,6 +101,7 @@ export const useGame = () => {
       
       if (newFound === artifactsTotal) {
         setIsGameActive(false);
+        setScore(prev => prev + 1); // Add a point!
         setTimeout(() => {
           const era = ERAS[currentEraIndex];
           const artifact = era.artifacts[currentArtifactIndex % era.artifacts.length];
@@ -178,6 +180,7 @@ export const useGame = () => {
     currentTool,
     setCurrentTool,
     hp,
+    score,
     artifactsTotal,
     artifactsFound,
     isGameActive,

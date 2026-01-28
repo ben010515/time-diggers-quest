@@ -21,6 +21,7 @@ const Index = () => {
     currentTool,
     setCurrentTool,
     hp,
+    score,
     museumCollection,
     showDiscoveryModal,
     showFailModal,
@@ -54,6 +55,10 @@ const Index = () => {
               <div>
                 <div className="text-xs font-bold text-gray-500 uppercase">תקופה</div>
                 <div className="font-black text-lg text-amber-700">{currentEra.name}</div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="text-xs font-bold text-gray-500 uppercase">ניקוד</div>
+                <div className="font-black text-2xl text-amber-600">⭐ {score}</div>
               </div>
               <div className="flex flex-col items-end">
                 <div className="text-xs font-bold text-gray-500 mb-1">עמידות כלים</div>
