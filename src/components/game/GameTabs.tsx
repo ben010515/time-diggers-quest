@@ -1,8 +1,8 @@
 import React from 'react';
 
 interface GameTabsProps {
-  activeTab: 'dig' | 'museum';
-  onTabChange: (tab: 'dig' | 'museum') => void;
+  activeTab: 'dig' | 'museum' | 'shop';
+  onTabChange: (tab: 'dig' | 'museum' | 'shop') => void;
 }
 
 export const GameTabs: React.FC<GameTabsProps> = ({ activeTab, onTabChange }) => {
@@ -12,13 +12,19 @@ export const GameTabs: React.FC<GameTabsProps> = ({ activeTab, onTabChange }) =>
         className={`tab ${activeTab === 'dig' ? 'active' : ''}`}
         onClick={() => onTabChange('dig')}
       >
-        אתר החפירה ⛏️
+        חפירה ⛏️
       </div>
       <div 
         className={`tab ${activeTab === 'museum' ? 'active' : ''}`}
         onClick={() => onTabChange('museum')}
       >
-        האוסף 🏺
+        אוסף 🏺
+      </div>
+      <div 
+        className={`tab ${activeTab === 'shop' ? 'active' : ''}`}
+        onClick={() => onTabChange('shop')}
+      >
+        חנות 🛒
       </div>
     </div>
   );
