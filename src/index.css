@@ -2,95 +2,75 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap');
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 20 10% 13%;
+    --foreground: 36 50% 90%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 36 60% 65%;
+    --card-foreground: 25 50% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 36 60% 65%;
+    --popover-foreground: 25 50% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 36 80% 55%;
+    --primary-foreground: 25 50% 15%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 36 40% 85%;
+    --secondary-foreground: 25 50% 15%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 25 30% 30%;
+    --muted-foreground: 36 30% 70%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 195 80% 65%;
+    --accent-foreground: 200 80% 10%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --success: 122 40% 55%;
+    --success-foreground: 122 40% 10%;
 
-    --radius: 0.5rem;
+    --warning: 45 90% 55%;
+    --warning-foreground: 45 90% 10%;
+
+    --border: 25 40% 35%;
+    --input: 25 40% 35%;
+    --ring: 36 80% 55%;
+
+    --radius: 0px;
+
+    /* Game specific colors */
+    --panel-bg: 36 60% 65%;
+    --panel-border: 25 40% 25%;
+    --sand: 36 50% 55%;
+    --sand-dark: 36 50% 45%;
+    --dirt: 25 30% 28%;
+    --dirt-dark: 25 30% 20%;
+    --gold: 45 90% 60%;
+    --gold-border: 25 90% 45%;
+
+    /* Button colors */
+    --btn-blue: 195 80% 70%;
+    --btn-green: 122 40% 55%;
+    --btn-yellow: 45 85% 55%;
+    --btn-red: 0 70% 55%;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 20 10% 13%;
+    --foreground: 36 50% 90%;
   }
 }
 
@@ -99,7 +79,184 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    direction: rtl;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-family: 'Rubik', sans-serif;
+    background-image: 
+      linear-gradient(45deg, hsl(20 10% 15%) 25%, transparent 25%, transparent 75%, hsl(20 10% 15%) 75%, hsl(20 10% 15%)),
+      linear-gradient(45deg, hsl(20 10% 15%) 25%, transparent 25%, transparent 75%, hsl(20 10% 15%) 75%, hsl(20 10% 15%));
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+    image-rendering: pixelated;
+    user-select: none;
+    overflow: hidden;
   }
+}
+
+@layer components {
+  .retro-box {
+    @apply bg-card border-4 border-black relative;
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.5);
+  }
+
+  .retro-inset {
+    @apply bg-secondary border-4;
+    border-color: hsl(var(--panel-border));
+    box-shadow: inset 4px 4px 0px rgba(0,0,0,0.2);
+  }
+
+  .pixel-btn {
+    @apply border-4 border-black font-black uppercase cursor-pointer flex items-center justify-center gap-2 transition-transform;
+    box-shadow: inset -4px -4px 0px rgba(0,0,0,0.2), 4px 4px 0px rgba(0,0,0,0.5);
+  }
+
+  .pixel-btn:active,
+  .pixel-btn.active {
+    transform: translate(4px, 4px);
+    box-shadow: none;
+  }
+
+  .pixel-btn-blue {
+    background-color: hsl(var(--btn-blue));
+    @apply text-black;
+  }
+
+  .pixel-btn-green {
+    background-color: hsl(var(--btn-green));
+    @apply text-black;
+  }
+
+  .pixel-btn-yellow {
+    background-color: hsl(var(--btn-yellow));
+    @apply text-black;
+  }
+
+  .pixel-btn-red {
+    background-color: hsl(var(--btn-red));
+    @apply text-white;
+  }
+
+  .grid-wrapper {
+    @apply inline-block p-2 border-4 border-black;
+    background-color: hsl(var(--dirt-dark));
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+  }
+
+  .game-cell {
+    @apply w-9 h-9 flex items-center justify-center cursor-pointer text-xl border-2;
+    background-color: hsl(var(--sand));
+    border-color: hsl(var(--sand-dark));
+    background-image: radial-gradient(hsl(var(--sand-dark)) 15%, transparent 16%);
+    background-size: 4px 4px;
+    image-rendering: pixelated;
+  }
+
+  .game-cell:hover:not(.revealed) {
+    filter: brightness(1.1);
+  }
+
+  .game-cell.revealed-dirt {
+    background-color: hsl(var(--dirt));
+    background-image: none;
+    box-shadow: inset 2px 2px 0 rgba(0,0,0,0.5);
+    border-color: hsl(var(--dirt-dark));
+  }
+
+  .game-cell.revealed-artifact {
+    background-color: hsl(var(--gold));
+    background-image: none;
+    border-color: hsl(var(--gold-border));
+    animation: bounce 0.4s;
+  }
+
+  .game-cell.error {
+    background-color: hsl(var(--destructive)) !important;
+    background-image: none;
+  }
+
+  .game-cell.flagged::after {
+    content: '🚩';
+    font-size: 1rem;
+    filter: drop-shadow(2px 2px 0 #000);
+  }
+
+  .hp-bar-container {
+    @apply w-28 h-4 p-0.5 border-2 border-black;
+    background: #333;
+  }
+
+  .hp-fill {
+    @apply h-full transition-all duration-200;
+    background: repeating-linear-gradient(
+      45deg,
+      hsl(var(--success)),
+      hsl(var(--success)) 8px,
+      hsl(122 50% 65%) 8px,
+      hsl(122 50% 65%) 16px
+    );
+  }
+
+  .hp-fill.low {
+    background: hsl(var(--destructive));
+  }
+
+  .grid-header {
+    @apply flex items-center justify-center font-bold;
+    font-family: 'Courier New', monospace;
+    color: hsl(45 80% 85%);
+    text-shadow: 2px 2px 0 #000;
+  }
+
+  .grid-header.anchor {
+    color: hsl(80 100% 55%);
+  }
+
+  .museum-item {
+    @apply bg-white border-4 border-black mb-3 p-2 flex gap-3;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+  }
+
+  .item-icon-box {
+    @apply w-14 h-14 flex items-center justify-center text-3xl border-4;
+    background-color: hsl(var(--sand));
+    border-color: hsl(var(--panel-border));
+  }
+
+  .pixel-modal {
+    @apply absolute inset-0 z-50 flex items-center justify-center p-5;
+    background: rgba(0,0,0,0.85);
+  }
+
+  .modal-box {
+    @apply bg-white border-4 border-black p-5 max-w-xs w-full text-center relative;
+    box-shadow: 10px 10px 0 rgba(0,0,0,0.5);
+  }
+
+  .close-btn {
+    @apply absolute -top-4 -left-4 bg-red-500 text-white border-[3px] border-black w-8 h-8 flex items-center justify-center cursor-pointer font-bold;
+  }
+
+  .tab {
+    @apply px-4 py-2 border-4 border-black cursor-pointer text-sm font-bold mr-1;
+    background-color: hsl(25 20% 55%);
+    border-bottom: none;
+    color: #ddd;
+  }
+
+  .tab.active {
+    background-color: hsl(var(--card));
+    color: hsl(25 50% 15%);
+    padding-bottom: 12px;
+    margin-top: -4px;
+  }
+}
+
+@keyframes bounce {
+  0% { transform: scale(0.5); }
+  80% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
