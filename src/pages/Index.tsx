@@ -30,6 +30,10 @@ const Index = () => {
     showDiscoveryModal,
     showFailModal,
     lastFoundArtifact,
+    currentDifficulty,
+    hintCount,
+    xrayCount,
+    claimedGift,
     initGame,
     handleCellClick,
     collectArtifact,
@@ -37,6 +41,10 @@ const Index = () => {
     purchaseItem,
     getRowHints,
     getColHints,
+    changeDifficulty,
+    useHint,
+    useXray,
+    difficulties,
   } = useGame();
 
   useEffect(() => {
@@ -48,6 +56,7 @@ const Index = () => {
       <div className="retro-box max-w-[500px] w-full h-[95vh] flex flex-col">
         <GameHeader 
           eraName={currentEra.name} 
+          location={currentEra.location}
           score={score}
           onHelpClick={() => setShowHelp(true)} 
         />
@@ -56,6 +65,24 @@ const Index = () => {
         
         {activeTab === 'dig' ? (
           <div className="flex-1 p-4 overflow-y-auto flex flex-col items-center">
+            {/* Difficulty Selector */}
+            <div className="w-full flex gap-2 mb-3 justify-center">
+              {difficulties.map((diff) => (
+                <button
+                  key={diff.id}
+                  onClick={() => changeDifficulty(diff)}
+                  className={`pixel-btn text-xs px-3 py-1 ${
+                    currentDifficulty.id === diff.id 
+                      ? 'pixel-btn-green' 
+                      : 'pixel-btn-yellow'
+                  }`}
+                  title={diff.description}
+                >
+                  {diff.name} (x{diff.pointsMultiplier})
+                </button>
+              ))}
+            </div>
+
             {/* Info Panel */}
             <div className="w-full bg-white border-4 border-black p-2 mb-4 flex justify-between items-end shadow-md">
               <div>
@@ -72,6 +99,24 @@ const Index = () => {
                   <div className="bg-yellow-100 border-2 border-yellow-400 px-2 py-1 text-sm font-bold" title="נקודות כפולות">
                     ✨x2
                   </div>
+                )}
+                {hintCount > 0 && (
+                  <button 
+                    onClick={useHint}
+                    className="bg-purple-100 border-2 border-purple-400 px-2 py-1 text-sm font-bold cursor-pointer hover:bg-purple-200" 
+                    title="לחץ להפעלת רמז"
+                  >
+                    💡 {hintCount}
+                  </button>
+                )}
+                {xrayCount > 0 && (
+                  <button 
+                    onClick={useXray}
+                    className="bg-cyan-100 border-2 border-cyan-400 px-2 py-1 text-sm font-bold cursor-pointer hover:bg-cyan-200" 
+                    title="לחץ להפעלת רנטגן"
+                  >
+                    👓 {xrayCount}
+                  </button>
                 )}
               </div>
               <div className="flex flex-col items-end">
@@ -97,7 +142,12 @@ const Index = () => {
         ) : activeTab === 'museum' ? (
           <Museum collection={museumCollection} />
         ) : (
-          <Shop score={score} onPurchase={purchaseItem} ownedItems={ownedItems} />
+          <Shop 
+            score={score} 
+            onPurchase={purchaseItem} 
+            ownedItems={ownedItems} 
+            claimedGift={claimedGift}
+          />
         )}
 
         {/* Modals */}
