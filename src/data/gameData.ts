@@ -11,19 +11,20 @@ export interface Era {
   artifacts: Artifact[];
 }
 
-export interface Difficulty {
-  id: string;
-  name: string;
-  pointsMultiplier: number;
-  damageMultiplier: number;
-  description: string;
-}
-
-export const DIFFICULTIES: Difficulty[] = [
-  { id: 'easy', name: 'קל', pointsMultiplier: 1, damageMultiplier: 1, description: 'מתאים למתחילים' },
-  { id: 'normal', name: 'רגיל', pointsMultiplier: 2, damageMultiplier: 0.8, description: 'אתגר מאוזן' },
-  { id: 'hard', name: 'קשה', pointsMultiplier: 3, damageMultiplier: 0.6, description: 'לחופרים מנוסים' },
-];
+// Progressive difficulty - calculated based on completed levels
+export const calculateDifficulty = (completedLevels: number) => {
+  // Points increase with each level: 1, 2, 3, 4...
+  const pointsMultiplier = completedLevels + 1;
+  
+  // Damage decreases with each level (tools get stronger): 100%, 90%, 80%, 70%... minimum 30%
+  const damageMultiplier = Math.max(0.3, 1 - (completedLevels * 0.1));
+  
+  return {
+    level: completedLevels + 1,
+    pointsMultiplier,
+    damageMultiplier,
+  };
+};
 
 export const ERAS: Era[] = [
   {

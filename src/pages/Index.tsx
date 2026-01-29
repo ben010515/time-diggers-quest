@@ -31,6 +31,7 @@ const Index = () => {
     showFailModal,
     lastFoundArtifact,
     currentDifficulty,
+    completedLevels,
     hintCount,
     xrayCount,
     claimedGift,
@@ -41,10 +42,8 @@ const Index = () => {
     purchaseItem,
     getRowHints,
     getColHints,
-    changeDifficulty,
     useHint,
     useXray,
-    difficulties,
   } = useGame();
 
   useEffect(() => {
@@ -65,22 +64,11 @@ const Index = () => {
         
         {activeTab === 'dig' ? (
           <div className="flex-1 p-4 overflow-y-auto flex flex-col items-center">
-            {/* Difficulty Selector */}
-            <div className="w-full flex gap-2 mb-3 justify-center">
-              {difficulties.map((diff) => (
-                <button
-                  key={diff.id}
-                  onClick={() => changeDifficulty(diff)}
-                  className={`pixel-btn text-xs px-3 py-1 ${
-                    currentDifficulty.id === diff.id 
-                      ? 'pixel-btn-green' 
-                      : 'pixel-btn-yellow'
-                  }`}
-                  title={diff.description}
-                >
-                  {diff.name} (x{diff.pointsMultiplier})
-                </button>
-              ))}
+            {/* Level Progress Indicator */}
+            <div className="w-full bg-gradient-to-r from-amber-200 to-amber-300 border-4 border-black p-2 mb-3 text-center shadow-md">
+              <div className="font-black text-amber-900">
+                רמה {currentDifficulty.level} | נקודות: x{currentDifficulty.pointsMultiplier} | נזק: {Math.round(currentDifficulty.damageMultiplier * 100)}%
+              </div>
             </div>
 
             {/* Info Panel */}
