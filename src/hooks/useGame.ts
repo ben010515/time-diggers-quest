@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { ERAS, DIFFICULTIES, CellData, CollectedArtifact, Difficulty } from '@/data/gameData';
+import { useState, useCallback, useMemo } from 'react';
+import { ERAS, calculateDifficulty, CellData, CollectedArtifact } from '@/data/gameData';
 import { ShopItem } from '@/data/shopData';
 
 export type Tool = 'dig' | 'flag';
@@ -21,10 +21,13 @@ export const useGame = () => {
   const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
   const [showFailModal, setShowFailModal] = useState(false);
   const [lastFoundArtifact, setLastFoundArtifact] = useState<CollectedArtifact | null>(null);
-  const [currentDifficulty, setCurrentDifficulty] = useState<Difficulty>(DIFFICULTIES[0]);
+  const [completedLevels, setCompletedLevels] = useState(0);
   const [hintCount, setHintCount] = useState(0);
   const [xrayCount, setXrayCount] = useState(0);
   const [claimedGift, setClaimedGift] = useState(false);
+
+  // Progressive difficulty based on completed levels
+  const currentDifficulty = useMemo(() => calculateDifficulty(completedLevels), [completedLevels]);
 
   const gridSize = Math.min(8, 5 + Math.floor(currentEraIndex / 2));
   const currentEra = ERAS[currentEraIndex];
@@ -109,6 +112,7 @@ export const useGame = () => {
       
       if (newFound === artifactsTotal) {
         setIsGameActive(false);
+        setCompletedLevels(prev => prev + 1); // Increase difficulty for next level
         const pointsToAdd = (doublePoints ? 2 : 1) * currentDifficulty.pointsMultiplier;
         setScore(prev => prev + pointsToAdd);
         setDoublePoints(false);
@@ -269,10 +273,6 @@ export const useGame = () => {
     return hints;
   }, [gridData, gridSize]);
 
-  const changeDifficulty = useCallback((difficulty: Difficulty) => {
-    setCurrentDifficulty(difficulty);
-  }, []);
-
   return {
     currentEra,
     gridData,
@@ -292,6 +292,7 @@ export const useGame = () => {
     showFailModal,
     lastFoundArtifact,
     currentDifficulty,
+    completedLevels,
     hintCount,
     xrayCount,
     claimedGift,
@@ -303,9 +304,7 @@ export const useGame = () => {
     getRowHints,
     getColHints,
     setShowDiscoveryModal,
-    changeDifficulty,
     useHint,
     useXray,
-    difficulties: DIFFICULTIES,
   };
 };
