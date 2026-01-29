@@ -2,11 +2,12 @@ import React from 'react';
 
 interface GameHeaderProps {
   eraName: string;
+  location: string;
   score: number;
   onHelpClick: () => void;
 }
 
-export const GameHeader: React.FC<GameHeaderProps> = ({ eraName, score, onHelpClick }) => {
+export const GameHeader: React.FC<GameHeaderProps> = ({ eraName, location, score, onHelpClick }) => {
   return (
     <header className="p-4 border-b-4 border-black bg-amber-200 flex justify-between items-center">
       <div>
@@ -21,7 +22,7 @@ export const GameHeader: React.FC<GameHeaderProps> = ({ eraName, score, onHelpCl
             ⭐ {score}
           </div>
         </div>
-        <div className="text-sm font-bold text-amber-800 mt-1">מיקום: תל-מגידו</div>
+        <div className="text-sm font-bold text-amber-800 mt-1">מיקום: {location}</div>
       </div>
       <button 
         onClick={onHelpClick}

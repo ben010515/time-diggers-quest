@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ERAS, CellData, CollectedArtifact, Artifact } from '@/data/gameData';
+import { ERAS, DIFFICULTIES, CellData, CollectedArtifact, Difficulty } from '@/data/gameData';
 import { ShopItem } from '@/data/shopData';
 
 export type Tool = 'dig' | 'flag';
@@ -21,6 +21,10 @@ export const useGame = () => {
   const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
   const [showFailModal, setShowFailModal] = useState(false);
   const [lastFoundArtifact, setLastFoundArtifact] = useState<CollectedArtifact | null>(null);
+  const [currentDifficulty, setCurrentDifficulty] = useState<Difficulty>(DIFFICULTIES[0]);
+  const [hintCount, setHintCount] = useState(0);
+  const [xrayCount, setXrayCount] = useState(0);
+  const [claimedGift, setClaimedGift] = useState(false);
 
   const gridSize = Math.min(8, 5 + Math.floor(currentEraIndex / 2));
   const currentEra = ERAS[currentEraIndex];
@@ -105,9 +109,9 @@ export const useGame = () => {
       
       if (newFound === artifactsTotal) {
         setIsGameActive(false);
-        const pointsToAdd = doublePoints ? 2 : 1;
+        const pointsToAdd = (doublePoints ? 2 : 1) * currentDifficulty.pointsMultiplier;
         setScore(prev => prev + pointsToAdd);
-        setDoublePoints(false); // Reset double points after use
+        setDoublePoints(false);
         setTimeout(() => {
           const era = ERAS[currentEraIndex];
           const artifact = era.artifacts[currentArtifactIndex % era.artifacts.length];
@@ -120,9 +124,10 @@ export const useGame = () => {
       setGridData(newGridData);
       
       if (hasShield) {
-        setHasShield(false); // Use the shield
+        setHasShield(false);
       } else {
-        const newHp = hp - 15;
+        const damage = Math.round(15 * currentDifficulty.damageMultiplier);
+        const newHp = hp - damage;
         setHp(newHp);
         
         if (newHp <= 0) {
@@ -131,10 +136,67 @@ export const useGame = () => {
         }
       }
     }
-  }, [isGameActive, gridData, currentTool, artifactsFound, artifactsTotal, hp, currentEraIndex, currentArtifactIndex, hasShield, doublePoints]);
+  }, [isGameActive, gridData, currentTool, artifactsFound, artifactsTotal, hp, currentEraIndex, currentArtifactIndex, hasShield, doublePoints, currentDifficulty]);
+
+  const useHint = useCallback(() => {
+    if (hintCount <= 0 || !isGameActive) return;
+    
+    for (let r = 0; r < gridSize; r++) {
+      for (let c = 0; c < gridSize; c++) {
+        if (gridData[r][c].state === 'hidden' && !gridData[r][c].hasArtifact) {
+          const newGridData = [...gridData.map(row => [...row])];
+          newGridData[r][c] = { ...gridData[r][c], state: 'revealed' };
+          setGridData(newGridData);
+          setHintCount(prev => prev - 1);
+          return;
+        }
+      }
+    }
+  }, [hintCount, isGameActive, gridData, gridSize]);
+
+  const useXray = useCallback(() => {
+    if (xrayCount <= 0 || !isGameActive) return;
+    
+    setXrayCount(prev => prev - 1);
+    const xrayGrid = gridData.map(row => 
+      row.map(cell => cell.hasArtifact && cell.state === 'hidden' 
+        ? { ...cell, state: 'revealed' as const } 
+        : cell
+      )
+    );
+    setGridData(xrayGrid);
+    setTimeout(() => {
+      setGridData(prev => prev.map(row => 
+        row.map(cell => cell.hasArtifact && cell.state === 'revealed' 
+          ? { ...cell, state: 'hidden' as const } 
+          : cell
+        )
+      ));
+    }, 1500);
+  }, [xrayCount, isGameActive, gridData]);
 
   const purchaseItem = useCallback((item: ShopItem) => {
-    if (score < item.price || ownedItems.includes(item.id)) return;
+    if (item.id === 'gift_points') {
+      if (claimedGift) return;
+      setScore(prev => prev + 50);
+      setClaimedGift(true);
+      return;
+    }
+    
+    if (score < item.price) return;
+    
+    // For usable items, allow multiple purchases
+    if (item.isUsable) {
+      setScore(prev => prev - item.price);
+      if (item.id === 'hint') {
+        setHintCount(prev => prev + 1);
+      } else if (item.id === 'xray') {
+        setXrayCount(prev => prev + 1);
+      }
+      return;
+    }
+    
+    if (ownedItems.includes(item.id)) return;
     
     setScore(prev => prev - item.price);
     
@@ -146,43 +208,12 @@ export const useGame = () => {
         setHasShield(true);
         setOwnedItems(prev => [...prev, item.id]);
         break;
-      case 'hint':
-        // Find a safe cell (no artifact) and reveal it
-        for (let r = 0; r < gridSize; r++) {
-          for (let c = 0; c < gridSize; c++) {
-            if (gridData[r][c].state === 'hidden' && !gridData[r][c].hasArtifact) {
-              const newGridData = [...gridData.map(row => [...row])];
-              newGridData[r][c] = { ...gridData[r][c], state: 'revealed' };
-              setGridData(newGridData);
-              return;
-            }
-          }
-        }
-        break;
-      case 'xray':
-        // Temporarily show all artifacts
-        const xrayGrid = gridData.map(row => 
-          row.map(cell => cell.hasArtifact && cell.state === 'hidden' 
-            ? { ...cell, state: 'revealed' as const } 
-            : cell
-          )
-        );
-        setGridData(xrayGrid);
-        setTimeout(() => {
-          setGridData(prev => prev.map(row => 
-            row.map(cell => cell.hasArtifact && cell.state === 'revealed' 
-              ? { ...cell, state: 'hidden' as const } 
-              : cell
-            )
-          ));
-        }, 1500);
-        break;
       case 'golden_trowel':
         setDoublePoints(true);
         setOwnedItems(prev => [...prev, item.id]);
         break;
     }
-  }, [score, ownedItems, gridData, gridSize]);
+  }, [score, ownedItems, claimedGift]);
 
   const collectArtifact = useCallback(() => {
     if (lastFoundArtifact) {
@@ -238,6 +269,10 @@ export const useGame = () => {
     return hints;
   }, [gridData, gridSize]);
 
+  const changeDifficulty = useCallback((difficulty: Difficulty) => {
+    setCurrentDifficulty(difficulty);
+  }, []);
+
   return {
     currentEra,
     gridData,
@@ -256,6 +291,10 @@ export const useGame = () => {
     showDiscoveryModal,
     showFailModal,
     lastFoundArtifact,
+    currentDifficulty,
+    hintCount,
+    xrayCount,
+    claimedGift,
     initGame,
     handleCellClick,
     collectArtifact,
@@ -264,5 +303,9 @@ export const useGame = () => {
     getRowHints,
     getColHints,
     setShowDiscoveryModal,
+    changeDifficulty,
+    useHint,
+    useXray,
+    difficulties: DIFFICULTIES,
   };
 };
