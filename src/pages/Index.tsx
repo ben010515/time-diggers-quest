@@ -44,6 +44,7 @@ const Index = () => {
     getColHints,
     useHint,
     useXray,
+    sellArtifact,
   } = useGame();
 
   useEffect(() => {
@@ -67,7 +68,7 @@ const Index = () => {
             {/* Level Progress Indicator */}
             <div className="w-full bg-gradient-to-r from-amber-200 to-amber-300 border-4 border-black p-2 mb-3 text-center shadow-md">
               <div className="font-black text-amber-900">
-                רמה {currentDifficulty.level} | נקודות: x{currentDifficulty.pointsMultiplier} | נזק: {Math.round(currentDifficulty.damageMultiplier * 100)}%
+                רמה {currentDifficulty.level} | לוח: {currentDifficulty.gridSize}x{currentDifficulty.gridSize} | נקודות: x{currentDifficulty.pointsMultiplier} | נזק: {Math.round(currentDifficulty.damageMultiplier * 100)}%
               </div>
             </div>
 
@@ -128,7 +129,7 @@ const Index = () => {
             <ToolBar currentTool={currentTool} onToolChange={setCurrentTool} />
           </div>
         ) : activeTab === 'museum' ? (
-          <Museum collection={museumCollection} />
+          <Museum collection={museumCollection} onSellArtifact={sellArtifact} />
         ) : (
           <Shop 
             score={score} 

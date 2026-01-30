@@ -29,7 +29,7 @@ export const useGame = () => {
   // Progressive difficulty based on completed levels
   const currentDifficulty = useMemo(() => calculateDifficulty(completedLevels), [completedLevels]);
 
-  const gridSize = Math.min(8, 5 + Math.floor(currentEraIndex / 2));
+  const gridSize = currentDifficulty.gridSize;
   const currentEra = ERAS[currentEraIndex];
 
   const generateLevel = useCallback((density: number = 0.45) => {
@@ -219,6 +219,22 @@ export const useGame = () => {
     }
   }, [score, ownedItems, claimedGift]);
 
+  const sellArtifact = useCallback((index: number) => {
+    const artifact = museumCollection[index];
+    if (!artifact) return;
+    
+    const prices: Record<string, number> = {
+      'התקופה הפליאוליתית': 10,
+      'תקופת הברונזה': 15,
+      'תקופת הברזל': 20,
+      'התקופה הרומית': 25,
+    };
+    const sellPrice = prices[artifact.eraName] || 10;
+    
+    setScore(prev => prev + sellPrice);
+    setMuseumCollection(prev => prev.filter((_, i) => i !== index));
+  }, [museumCollection]);
+
   const collectArtifact = useCallback(() => {
     if (lastFoundArtifact) {
       setMuseumCollection(prev => [...prev, lastFoundArtifact]);
@@ -306,5 +322,6 @@ export const useGame = () => {
     setShowDiscoveryModal,
     useHint,
     useXray,
+    sellArtifact,
   };
 };
