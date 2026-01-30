@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { CollectedArtifact } from '@/data/gameData';
 
 interface MuseumProps {
@@ -6,14 +6,22 @@ interface MuseumProps {
   onSellArtifact: (index: number) => void;
 }
 
-export const Museum: React.FC<MuseumProps> = ({ collection, onSellArtifact }) => {
+export const Museum = forwardRef<HTMLDivElement, MuseumProps>(({ collection, onSellArtifact }, ref) => {
   // Calculate sell price based on era (later eras worth more)
   const getSellPrice = (eraName: string) => {
     const prices: Record<string, number> = {
       'התקופה הפליאוליתית': 10,
-      'תקופת הברונזה': 15,
-      'תקופת הברזל': 20,
-      'התקופה הרומית': 25,
+      'התקופה הניאוליתית': 12,
+      'תקופת האבן-נחושת': 14,
+      'תקופת הברונזה': 16,
+      'תקופת הברזל': 18,
+      'התקופה הפרסית': 20,
+      'התקופה ההלניסטית': 22,
+      'התקופה הרומית': 24,
+      'התקופה הביזנטית': 26,
+      'התקופה המוסלמית': 28,
+      'תקופת הצלבנים': 30,
+      'התקופה העות\'מאנית': 35,
     };
     return prices[eraName] || 10;
   };
@@ -54,4 +62,6 @@ export const Museum: React.FC<MuseumProps> = ({ collection, onSellArtifact }) =>
       </div>
     </div>
   );
-};
+});
+
+Museum.displayName = 'Museum';
