@@ -16,13 +16,17 @@ export const calculateDifficulty = (completedLevels: number) => {
   // Points increase with each level: 1, 2, 3, 4...
   const pointsMultiplier = completedLevels + 1;
   
-  // Damage decreases with each level (tools get stronger): 100%, 90%, 80%, 70%... minimum 30%
-  const damageMultiplier = Math.max(0.3, 1 - (completedLevels * 0.1));
+  // Damage INCREASES with each level: 100%, 110%, 120%... max 200%
+  const damageMultiplier = Math.min(2, 1 + (completedLevels * 0.1));
+  
+  // Grid size grows: 5, 5, 6, 6, 7, 7, 8 (max 8)
+  const gridSize = Math.min(8, 5 + Math.floor(completedLevels / 2));
   
   return {
     level: completedLevels + 1,
     pointsMultiplier,
     damageMultiplier,
+    gridSize,
   };
 };
 
