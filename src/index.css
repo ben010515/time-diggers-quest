@@ -140,6 +140,11 @@
     @apply text-white;
   }
 
+  .pixel-btn-purple {
+    background-color: hsl(280 60% 65%);
+    @apply text-black;
+  }
+
   .grid-wrapper {
     @apply inline-block p-2 border-4 border-black;
     background-color: hsl(var(--dirt-dark));

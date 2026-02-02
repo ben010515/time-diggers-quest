@@ -10,10 +10,12 @@ import { Shop } from '@/components/game/Shop';
 import { HelpModal } from '@/components/game/HelpModal';
 import { DiscoveryModal } from '@/components/game/DiscoveryModal';
 import { FailModal } from '@/components/game/FailModal';
+import { CheatModal } from '@/components/game/CheatModal';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<'dig' | 'museum' | 'shop'>('dig');
   const [showHelp, setShowHelp] = useState(false);
+  const [showCheat, setShowCheat] = useState(false);
   
   const {
     currentEra,
@@ -45,6 +47,9 @@ const Index = () => {
     useHint,
     useXray,
     sellArtifact,
+    addCheatPoints,
+    skipLevel,
+    addRandomArtifact,
   } = useGame();
 
   useEffect(() => {
@@ -136,6 +141,7 @@ const Index = () => {
             onPurchase={purchaseItem} 
             ownedItems={ownedItems} 
             claimedGift={claimedGift}
+            onLuckyCharmClick={() => setShowCheat(true)}
           />
         )}
 
@@ -147,6 +153,13 @@ const Index = () => {
           onCollect={collectArtifact} 
         />
         <FailModal isOpen={showFailModal} onRestart={restartLevel} />
+        <CheatModal 
+          isOpen={showCheat} 
+          onClose={() => setShowCheat(false)}
+          onAddPoints={addCheatPoints}
+          onSkipLevel={skipLevel}
+          onAddArtifact={addRandomArtifact}
+        />
       </div>
     </div>
   );
