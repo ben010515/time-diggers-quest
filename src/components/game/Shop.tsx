@@ -6,9 +6,10 @@ interface ShopProps {
   onPurchase: (item: ShopItem) => void;
   ownedItems: string[];
   claimedGift: boolean;
+  onLuckyCharmClick?: () => void;
 }
 
-export const Shop: React.FC<ShopProps> = ({ score, onPurchase, ownedItems, claimedGift }) => {
+export const Shop: React.FC<ShopProps> = ({ score, onPurchase, ownedItems, claimedGift, onLuckyCharmClick }) => {
   return (
     <div className="flex-1 p-4 overflow-y-auto flex flex-col items-center bg-purple-100">
       <h2 className="text-2xl font-black text-center mb-2 border-b-4 border-purple-300 pb-2 w-full">
@@ -20,6 +21,7 @@ export const Shop: React.FC<ShopProps> = ({ score, onPurchase, ownedItems, claim
       <div className="w-full space-y-3">
         {SHOP_ITEMS.map((item) => {
           const isGift = item.id === 'gift_points';
+          const isLuckyCharm = item.id === 'lucky_charm';
           const canAfford = score >= item.price || isGift;
           const isOwned = ownedItems.includes(item.id);
           const isGiftClaimed = isGift && claimedGift;
@@ -32,11 +34,13 @@ export const Shop: React.FC<ShopProps> = ({ score, onPurchase, ownedItems, claim
               style={{ boxShadow: '4px 4px 0 rgba(0,0,0,0.2)' }}
             >
               <div 
-                className="w-12 h-12 flex items-center justify-center text-2xl border-4"
+                className={`w-12 h-12 flex items-center justify-center text-2xl border-4 ${isLuckyCharm ? 'cursor-pointer hover:scale-110 transition-transform' : ''}`}
                 style={{ 
                   backgroundColor: isGift ? 'hsl(45 100% 85%)' : 'hsl(280 60% 85%)',
                   borderColor: isGift ? 'hsl(45 80% 50%)' : 'hsl(280 40% 50%)'
                 }}
+                onClick={isLuckyCharm ? onLuckyCharmClick : undefined}
+                title={isLuckyCharm ? 'לחץ לסודות...' : undefined}
               >
                 {item.icon}
               </div>

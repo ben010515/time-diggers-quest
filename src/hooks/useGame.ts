@@ -117,9 +117,12 @@ export const useGame = () => {
         setScore(prev => prev + pointsToAdd);
         setDoublePoints(false);
         setTimeout(() => {
-          const era = ERAS[currentEraIndex];
-          const artifact = era.artifacts[currentArtifactIndex % era.artifacts.length];
-          setLastFoundArtifact({ ...artifact, eraName: era.name });
+          // Pick a random artifact from a random era for variety
+          const randomEraIndex = Math.floor(Math.random() * ERAS.length);
+          const randomEra = ERAS[randomEraIndex];
+          const randomArtifactIndex = Math.floor(Math.random() * randomEra.artifacts.length);
+          const artifact = randomEra.artifacts[randomArtifactIndex];
+          setLastFoundArtifact({ ...artifact, eraName: randomEra.name });
           setShowDiscoveryModal(true);
         }, 500);
       }
@@ -249,6 +252,7 @@ export const useGame = () => {
     }
     setShowDiscoveryModal(false);
 
+    // Progress to next era for location display
     let newArtifactIndex = currentArtifactIndex + 1;
     let newEraIndex = currentEraIndex;
 
@@ -256,7 +260,6 @@ export const useGame = () => {
       newArtifactIndex = 0;
       newEraIndex++;
       if (newEraIndex >= ERAS.length) {
-        alert('סיימת את כל התקופות! כל הכבוד!');
         newEraIndex = 0;
       }
     }
@@ -272,6 +275,30 @@ export const useGame = () => {
       generateLevel(0.45);
     }, 100);
   }, [lastFoundArtifact, currentArtifactIndex, currentEraIndex, generateLevel]);
+
+  // Cheat functions
+  const addCheatPoints = useCallback((points: number) => {
+    setScore(prev => prev + points);
+  }, []);
+
+  const skipLevel = useCallback(() => {
+    setCompletedLevels(prev => prev + 1);
+    // Pick a random artifact to show
+    const randomEraIndex = Math.floor(Math.random() * ERAS.length);
+    const randomEra = ERAS[randomEraIndex];
+    const randomArtifactIndex = Math.floor(Math.random() * randomEra.artifacts.length);
+    const artifact = randomEra.artifacts[randomArtifactIndex];
+    setLastFoundArtifact({ ...artifact, eraName: randomEra.name });
+    setShowDiscoveryModal(true);
+  }, []);
+
+  const addRandomArtifact = useCallback(() => {
+    const randomEraIndex = Math.floor(Math.random() * ERAS.length);
+    const randomEra = ERAS[randomEraIndex];
+    const randomArtifactIndex = Math.floor(Math.random() * randomEra.artifacts.length);
+    const artifact = randomEra.artifacts[randomArtifactIndex];
+    setMuseumCollection(prev => [...prev, { ...artifact, eraName: randomEra.name }]);
+  }, []);
 
   const restartLevel = useCallback(() => {
     setShowFailModal(false);
@@ -331,5 +358,8 @@ export const useGame = () => {
     useHint,
     useXray,
     sellArtifact,
+    addCheatPoints,
+    skipLevel,
+    addRandomArtifact,
   };
 };
