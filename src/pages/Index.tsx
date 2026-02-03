@@ -26,9 +26,11 @@ const Index = () => {
     currentTool,
     setCurrentTool,
     hp,
+    maxHp,
     score,
     ownedItems,
     hasShield,
+    shieldCount,
     doublePoints,
     museumCollection,
     showDiscoveryModal,
@@ -88,8 +90,8 @@ const Index = () => {
               </div>
               <div className="flex gap-2">
                 {hasShield && (
-                  <div className="bg-blue-100 border-2 border-blue-400 px-2 py-1 text-sm font-bold" title="מגן פעיל">
-                    🛡️
+                  <div className="bg-blue-100 border-2 border-blue-400 px-2 py-1 text-sm font-bold" title={`מגן פעיל (${shieldCount})`}>
+                    🛡️ {shieldCount > 1 ? `x${shieldCount}` : ''}
                   </div>
                 )}
                 {doublePoints && (
@@ -118,7 +120,7 @@ const Index = () => {
               </div>
               <div className="flex flex-col items-end">
                 <div className="text-xs font-bold text-gray-500 mb-1">עמידות כלים</div>
-                <HealthBar hp={hp} />
+                <HealthBar hp={hp} maxHp={maxHp} />
               </div>
             </div>
 

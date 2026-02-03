@@ -17,6 +17,7 @@ export const useGame = () => {
   const [score, setScore] = useState(0);
   const [ownedItems, setOwnedItems] = useState<string[]>([]);
   const [hasShield, setHasShield] = useState(false);
+  const [shieldCount, setShieldCount] = useState(0); // Number of shields remaining
   const [doublePoints, setDoublePoints] = useState(false);
   const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
   const [showFailModal, setShowFailModal] = useState(false);
@@ -25,6 +26,7 @@ export const useGame = () => {
   const [hintCount, setHintCount] = useState(0);
   const [xrayCount, setXrayCount] = useState(0);
   const [claimedGift, setClaimedGift] = useState(false);
+  const [maxHp, setMaxHp] = useState(100); // Base max HP, can be increased
 
   // Progressive difficulty based on completed levels
   const currentDifficulty = useMemo(() => calculateDifficulty(completedLevels), [completedLevels]);
@@ -78,11 +80,11 @@ export const useGame = () => {
   }, [gridSize]);
 
   const initGame = useCallback(() => {
-    setHp(100);
+    setHp(maxHp);
     setIsGameActive(true);
     setArtifactsFound(0);
     generateLevel(0.45);
-  }, [generateLevel]);
+  }, [generateLevel, maxHp]);
 
   const handleCellClick = useCallback((r: number, c: number) => {
     if (!isGameActive) return;
@@ -130,8 +132,12 @@ export const useGame = () => {
       newGridData[r][c] = { ...cellData, state: 'revealed' };
       setGridData(newGridData);
       
-      if (hasShield) {
-        setHasShield(false);
+      // Check for shield protection
+      if (shieldCount > 0) {
+        setShieldCount(prev => prev - 1);
+        if (shieldCount <= 1) {
+          setHasShield(false);
+        }
       } else {
         const damage = Math.round(15 * currentDifficulty.damageMultiplier);
         const newHp = hp - damage;
@@ -143,7 +149,7 @@ export const useGame = () => {
         }
       }
     }
-  }, [isGameActive, gridData, currentTool, artifactsFound, artifactsTotal, hp, currentEraIndex, currentArtifactIndex, hasShield, doublePoints, currentDifficulty]);
+  }, [isGameActive, gridData, currentTool, artifactsFound, artifactsTotal, hp, currentEraIndex, currentArtifactIndex, shieldCount, doublePoints, currentDifficulty]);
 
   const useHint = useCallback(() => {
     if (hintCount <= 0 || !isGameActive) return;
@@ -197,30 +203,49 @@ export const useGame = () => {
       setScore(prev => prev - item.price);
       if (item.id === 'hint') {
         setHintCount(prev => prev + 1);
+      } else if (item.id === 'hint_pack') {
+        setHintCount(prev => prev + 3);
       } else if (item.id === 'xray') {
         setXrayCount(prev => prev + 1);
       }
       return;
     }
     
-    if (ownedItems.includes(item.id)) return;
+    // Items that can be purchased multiple times (consumables)
+    const consumableItems = ['heal', 'heal_full', 'shield', 'double_shield'];
+    if (!consumableItems.includes(item.id) && ownedItems.includes(item.id)) return;
     
     setScore(prev => prev - item.price);
     
     switch (item.id) {
       case 'heal':
-        setHp(prev => Math.min(100, prev + 30));
+        setHp(prev => Math.min(maxHp, prev + 30));
+        break;
+      case 'heal_full':
+        setHp(maxHp);
         break;
       case 'shield':
         setHasShield(true);
-        setOwnedItems(prev => [...prev, item.id]);
+        setShieldCount(1);
+        break;
+      case 'double_shield':
+        setHasShield(true);
+        setShieldCount(2);
         break;
       case 'golden_trowel':
         setDoublePoints(true);
         setOwnedItems(prev => [...prev, item.id]);
         break;
+      case 'lucky_charm':
+        // Lucky charm just opens the cheat menu (handled in Shop component)
+        break;
+      case 'extra_life':
+        setMaxHp(150);
+        setHp(prev => Math.min(150, prev + 50));
+        setOwnedItems(prev => [...prev, item.id]);
+        break;
     }
-  }, [score, ownedItems, claimedGift]);
+  }, [score, ownedItems, claimedGift, maxHp]);
 
   const sellArtifact = useCallback((index: number) => {
     const artifact = museumCollection[index];
@@ -302,8 +327,9 @@ export const useGame = () => {
 
   const restartLevel = useCallback(() => {
     setShowFailModal(false);
-    setOwnedItems(prev => prev.filter(id => id !== 'shield' && id !== 'golden_trowel'));
+    setOwnedItems(prev => prev.filter(id => id !== 'shield' && id !== 'golden_trowel' && id !== 'double_shield'));
     setHasShield(false);
+    setShieldCount(0);
     setDoublePoints(false);
     initGame();
   }, [initGame]);
@@ -331,9 +357,11 @@ export const useGame = () => {
     currentTool,
     setCurrentTool,
     hp,
+    maxHp,
     score,
     ownedItems,
     hasShield,
+    shieldCount,
     doublePoints,
     artifactsTotal,
     artifactsFound,
