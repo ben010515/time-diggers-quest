@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from 'recharts';
 
@@ -8,28 +8,23 @@ interface StatsData {
   hourlyStats: { hour: string; visits: number }[];
 }
 
+// Global flag to ensure visit is recorded only once per page load
+let visitRecorded = false;
+
 export const StatsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
   const [stats, setStats] = useState<StatsData>({
     totalVisits: 0,
     onlineNow: 0,
     hourlyStats: []
   });
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
+  // Fetch stats when panel opens
   useEffect(() => {
     if (!isOpen) return;
 
-    // Generate unique session ID
-    const sessionId = localStorage.getItem('game_session_id') || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    localStorage.setItem('game_session_id', sessionId);
-
-    // Record this visit
-    const recordVisit = async () => {
-      await supabase.from('site_visits').insert({ session_id: sessionId });
-    };
-
-    // Fetch stats
     const fetchStats = async () => {
-      // Total visits
+      // Total visits (unique sessions)
       const { count: totalCount } = await supabase
         .from('site_visits')
         .select('*', { count: 'exact', head: true });
@@ -64,8 +59,26 @@ export const StatsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
       }));
     };
 
-    recordVisit();
     fetchStats();
+  }, [isOpen]);
+
+  // Setup presence channel once on mount (not when panel opens)
+  useEffect(() => {
+    // Generate unique session ID
+    let sessionId = localStorage.getItem('game_session_id');
+    if (!sessionId) {
+      sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem('game_session_id', sessionId);
+    }
+
+    // Record visit only once per page load
+    const recordVisit = async () => {
+      if (visitRecorded) return;
+      visitRecorded = true;
+      await supabase.from('site_visits').insert({ session_id: sessionId });
+    };
+
+    recordVisit();
 
     // Setup presence channel for real-time online count
     const channel = supabase.channel('online_players', {
@@ -73,6 +86,7 @@ export const StatsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
         presence: { key: sessionId }
       }
     });
+    channelRef.current = channel;
 
     channel
       .on('presence', { event: 'sync' }, () => {
@@ -89,7 +103,7 @@ export const StatsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
     return () => {
       channel.unsubscribe();
     };
-  }, [isOpen]);
+  }, []);
 
   if (!isOpen) return null;
 
