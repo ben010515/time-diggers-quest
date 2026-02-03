@@ -82,6 +82,9 @@ const Index = () => {
               <div>
                 <div className="text-xs font-bold text-gray-500 uppercase">תקופה</div>
                 <div className="font-black text-lg text-amber-700">{currentEra.name}</div>
+                <div className="text-xs font-bold text-green-600 mt-1">
+                  🏺 סה"כ נאספו: {museumCollection.length}
+                </div>
               </div>
               <div className="flex gap-2">
                 {hasShield && (

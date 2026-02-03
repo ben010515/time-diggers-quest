@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { CellData } from '@/data/gameData';
+
+// Different artifact discovery effects
+const ARTIFACT_EFFECTS = ['✨', '💎', '🌟', '⭐', '🔮', '💫', '🏺', '🗿', '📿', '🎭'];
 
 interface GameGridProps {
   gridData: CellData[][];
@@ -17,6 +20,20 @@ export const GameGrid: React.FC<GameGridProps> = ({
   onCellClick,
 }) => {
   const isAnchor = (value: number) => value === 0 || value === gridSize;
+
+  // Generate random effects for each cell position (stable per render)
+  const cellEffects = useMemo(() => {
+    const effects: string[][] = [];
+    for (let r = 0; r < gridSize; r++) {
+      const row: string[] = [];
+      for (let c = 0; c < gridSize; c++) {
+        const randomIndex = Math.floor(Math.random() * ARTIFACT_EFFECTS.length);
+        row.push(ARTIFACT_EFFECTS[randomIndex]);
+      }
+      effects.push(row);
+    }
+    return effects;
+  }, [gridSize]);
 
   return (
     <div className="grid-wrapper mb-6">
@@ -52,7 +69,8 @@ export const GameGrid: React.FC<GameGridProps> = ({
               if (cell.state === 'revealed') {
                 if (cell.hasArtifact) {
                   cellClasses += ' revealed-artifact';
-                  content = '✨';
+                  // Use the pre-generated random effect for this cell
+                  content = cellEffects[r]?.[c] || '✨';
                 } else {
                   cellClasses += ' revealed-dirt error';
                 }
