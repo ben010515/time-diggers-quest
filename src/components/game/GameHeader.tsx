@@ -5,9 +5,10 @@ interface GameHeaderProps {
   location: string;
   score: number;
   onHelpClick: () => void;
+  onStatsClick: () => void;
 }
 
-export const GameHeader: React.FC<GameHeaderProps> = ({ eraName, location, score, onHelpClick }) => {
+export const GameHeader: React.FC<GameHeaderProps> = ({ eraName, location, score, onHelpClick, onStatsClick }) => {
   return (
     <header className="p-4 border-b-4 border-black bg-amber-200 flex justify-between items-center">
       <div>
@@ -24,13 +25,22 @@ export const GameHeader: React.FC<GameHeaderProps> = ({ eraName, location, score
         </div>
         <div className="text-sm font-bold text-amber-800 mt-1">מיקום: {location}</div>
       </div>
-      <button 
-        onClick={onHelpClick}
-        className="pixel-btn pixel-btn-blue w-10 h-10 text-2xl p-0"
-        title="איך משחקים"
-      >
-        ❓
-      </button>
+      <div className="flex gap-2">
+        <button 
+          onClick={onStatsClick}
+          className="pixel-btn pixel-btn-green w-10 h-10 text-2xl p-0"
+          title="סטטיסטיקות"
+        >
+          📊
+        </button>
+        <button 
+          onClick={onHelpClick}
+          className="pixel-btn pixel-btn-blue w-10 h-10 text-2xl p-0"
+          title="איך משחקים"
+        >
+          ❓
+        </button>
+      </div>
     </header>
   );
 };
