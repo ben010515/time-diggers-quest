@@ -11,11 +11,13 @@ import { HelpModal } from '@/components/game/HelpModal';
 import { DiscoveryModal } from '@/components/game/DiscoveryModal';
 import { FailModal } from '@/components/game/FailModal';
 import { CheatModal } from '@/components/game/CheatModal';
+import { StatsPanel } from '@/components/game/StatsPanel';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<'dig' | 'museum' | 'shop'>('dig');
   const [showHelp, setShowHelp] = useState(false);
   const [showCheat, setShowCheat] = useState(false);
+  const [showStats, setShowStats] = useState(false);
   
   const {
     currentEra,
@@ -63,7 +65,8 @@ const Index = () => {
           eraName={currentEra.name} 
           location={currentEra.location}
           score={score}
-          onHelpClick={() => setShowHelp(true)} 
+          onHelpClick={() => setShowHelp(true)}
+          onStatsClick={() => setShowStats(true)}
         />
         
         <GameTabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -82,9 +85,6 @@ const Index = () => {
               <div>
                 <div className="text-xs font-bold text-gray-500 uppercase">תקופה</div>
                 <div className="font-black text-lg text-amber-700">{currentEra.name}</div>
-                <div className="text-xs font-bold text-green-600 mt-1">
-                  🏺 סה"כ נאספו: {museumCollection.length}
-                </div>
               </div>
               <div className="flex gap-2">
                 {hasShield && (
@@ -163,6 +163,7 @@ const Index = () => {
           onSkipLevel={skipLevel}
           onAddArtifact={addRandomArtifact}
         />
+        <StatsPanel isOpen={showStats} onClose={() => setShowStats(false)} />
       </div>
     </div>
   );
