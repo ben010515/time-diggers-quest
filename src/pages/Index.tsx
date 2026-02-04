@@ -22,7 +22,6 @@ const Index = () => {
   const {
     currentEra,
     gridData,
-    gridSize,
     currentTool,
     setCurrentTool,
     hp,
@@ -128,7 +127,6 @@ const Index = () => {
             {gridData.length > 0 && (
               <GameGrid
                 gridData={gridData}
-                gridSize={gridSize}
                 rowHints={getRowHints()}
                 colHints={getColHints()}
                 onCellClick={handleCellClick}

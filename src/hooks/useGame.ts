@@ -339,16 +339,24 @@ export const useGame = () => {
   }, [gridData]);
 
   const getColHints = useCallback(() => {
+    // חשוב: להשתמש במימדים בפועל של gridData כדי למנוע מצב שבו ה-difficulty
+    // כבר התעדכן (gridSize חדש) אבל הלוח עדיין ישן – מה שיוצר “קפיצה” רגעית.
+    if (gridData.length === 0) return [];
+
+    const rows = gridData.length;
+    const cols = gridData[0]?.length ?? 0;
     const hints: number[] = [];
-    for (let c = 0; c < gridSize; c++) {
+
+    for (let c = 0; c < cols; c++) {
       let count = 0;
-      for (let r = 0; r < gridSize; r++) {
+      for (let r = 0; r < rows; r++) {
         if (gridData[r]?.[c]?.hasArtifact) count++;
       }
       hints.push(count);
     }
+
     return hints;
-  }, [gridData, gridSize]);
+  }, [gridData]);
 
   return {
     currentEra,
