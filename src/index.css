@@ -189,6 +189,50 @@
     filter: drop-shadow(2px 2px 0 #000);
   }
 
+  /* Cracking animation for multi-hit cells */
+  .game-cell.cracking {
+    position: relative;
+  }
+
+  .game-cell.crack-light::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(0,0,0,0.15) 50%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .game-cell.crack-medium::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      linear-gradient(135deg, transparent 30%, rgba(0,0,0,0.2) 40%, transparent 50%),
+      linear-gradient(45deg, transparent 50%, rgba(0,0,0,0.2) 60%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .game-cell.crack-heavy::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      linear-gradient(135deg, transparent 20%, rgba(0,0,0,0.3) 30%, transparent 40%),
+      linear-gradient(45deg, transparent 40%, rgba(0,0,0,0.3) 50%, transparent 60%),
+      linear-gradient(90deg, transparent 60%, rgba(0,0,0,0.25) 70%, transparent 80%);
+    pointer-events: none;
+  }
+
+  .game-cell.cracking {
+    animation: shake 0.1s ease-in-out;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
+  }
+
   .hp-bar-container {
     @apply w-28 h-5 p-0.5 border-2 border-black relative;
     background: #333;
