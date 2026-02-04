@@ -6,7 +6,6 @@ const ARTIFACT_EFFECTS = ['✨', '💎', '🌟', '⭐', '🔮', '💫', '🏺', 
 
 interface GameGridProps {
   gridData: CellData[][];
-  gridSize: number;
   rowHints: number[];
   colHints: number[];
   onCellClick: (r: number, c: number) => void;
@@ -14,43 +13,48 @@ interface GameGridProps {
 
 export const GameGrid: React.FC<GameGridProps> = ({
   gridData,
-  gridSize,
   rowHints,
   colHints,
   onCellClick,
 }) => {
-  const isAnchor = (value: number) => value === 0 || value === gridSize;
+  const rows = gridData.length;
+  const cols = gridData[0]?.length ?? 0;
+
+  const isAnchorRow = (value: number) => value === 0 || value === cols;
+  const isAnchorCol = (value: number) => value === 0 || value === rows;
 
   // Generate random effects for each cell position (stable per render)
   const cellEffects = useMemo(() => {
     const effects: string[][] = [];
-    for (let r = 0; r < gridSize; r++) {
+    for (let r = 0; r < rows; r++) {
       const row: string[] = [];
-      for (let c = 0; c < gridSize; c++) {
+      for (let c = 0; c < cols; c++) {
         const randomIndex = Math.floor(Math.random() * ARTIFACT_EFFECTS.length);
         row.push(ARTIFACT_EFFECTS[randomIndex]);
       }
       effects.push(row);
     }
     return effects;
-  }, [gridSize]);
+  }, [rows, cols]);
+
+  if (rows === 0 || cols === 0) return null;
 
   return (
     <div className="grid-wrapper mb-6">
       <div 
         className="grid gap-0.5"
         style={{ 
-          gridTemplateColumns: `30px repeat(${gridSize}, 36px)`,
+          gridTemplateColumns: `30px repeat(${cols}, 36px)`,
         }}
       >
         {/* Empty corner cell */}
         <div className="w-[30px] h-[30px]" />
         
         {/* Column hints */}
-        {colHints.map((hint, c) => (
+        {colHints.slice(0, cols).map((hint, c) => (
           <div 
             key={`col-${c}`}
-            className={`grid-header h-[30px] ${isAnchor(hint) ? 'anchor' : ''}`}
+            className={`grid-header h-[30px] ${isAnchorCol(hint) ? 'anchor' : ''}`}
           >
             {hint}
           </div>
@@ -59,8 +63,8 @@ export const GameGrid: React.FC<GameGridProps> = ({
         {/* Rows with hints and cells */}
         {gridData.map((row, r) => (
           <React.Fragment key={`row-${r}`}>
-            <div className={`grid-header w-[30px] ${isAnchor(rowHints[r]) ? 'anchor' : ''}`}>
-              {rowHints[r]}
+            <div className={`grid-header w-[30px] ${isAnchorRow(rowHints[r] ?? 0) ? 'anchor' : ''}`}>
+              {rowHints[r] ?? 0}
             </div>
             {row.map((cell, c) => {
               let cellClasses = 'game-cell';
