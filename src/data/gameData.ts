@@ -156,6 +156,8 @@ export const ERAS: Era[] = [
 export interface CellData {
   hasArtifact: boolean;
   state: 'hidden' | 'revealed' | 'flagged';
+  hitsRemaining: number; // How many more hits needed to break
+  maxHits: number; // Original hits needed (for progress display)
 }
 
 export interface CollectedArtifact extends Artifact {

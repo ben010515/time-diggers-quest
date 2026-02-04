@@ -4,6 +4,14 @@ import { ShopItem } from '@/data/shopData';
 
 export type Tool = 'dig' | 'flag';
 
+// Calculate hits needed based on difficulty
+const getHitsRequired = (completedLevels: number, pickaxeLevel: number) => {
+  // Base hits: 2 at start, increases every 3 levels (max 5)
+  const baseHits = Math.min(5, 2 + Math.floor(completedLevels / 3));
+  // Reduce by pickaxe upgrades (min 1 hit)
+  return Math.max(1, baseHits - pickaxeLevel);
+};
+
 export const useGame = () => {
   const [currentEraIndex, setCurrentEraIndex] = useState(0);
   const [currentArtifactIndex, setCurrentArtifactIndex] = useState(0);
@@ -17,7 +25,7 @@ export const useGame = () => {
   const [score, setScore] = useState(0);
   const [ownedItems, setOwnedItems] = useState<string[]>([]);
   const [hasShield, setHasShield] = useState(false);
-  const [shieldCount, setShieldCount] = useState(0); // Number of shields remaining
+  const [shieldCount, setShieldCount] = useState(0);
   const [doublePoints, setDoublePoints] = useState(false);
   const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
   const [showFailModal, setShowFailModal] = useState(false);
@@ -26,18 +34,24 @@ export const useGame = () => {
   const [hintCount, setHintCount] = useState(0);
   const [xrayCount, setXrayCount] = useState(0);
   const [claimedGift, setClaimedGift] = useState(false);
-  const [maxHp, setMaxHp] = useState(100); // Base max HP, can be increased
+  const [maxHp, setMaxHp] = useState(100);
+  const [pickaxeLevel, setPickaxeLevel] = useState(0); // Number of pickaxe upgrades
 
   // Progressive difficulty based on completed levels
   const currentDifficulty = useMemo(() => calculateDifficulty(completedLevels), [completedLevels]);
 
   const gridSize = currentDifficulty.gridSize;
   const currentEra = ERAS[currentEraIndex];
+  
+  // Calculate current hits required per cell
+  const hitsRequired = useMemo(() => getHitsRequired(completedLevels, pickaxeLevel), [completedLevels, pickaxeLevel]);
 
   const generateLevel = useCallback((density: number = 0.45) => {
     let valid = false;
     let newGridData: CellData[][] = [];
     let totalArtifacts = 0;
+    
+    const currentHitsRequired = getHitsRequired(completedLevels, pickaxeLevel);
 
     while (!valid) {
       newGridData = [];
@@ -48,7 +62,12 @@ export const useGame = () => {
         for (let c = 0; c < gridSize; c++) {
           const hasArtifact = Math.random() < density;
           if (hasArtifact) totalArtifacts++;
-          row.push({ hasArtifact, state: 'hidden' });
+          row.push({ 
+            hasArtifact, 
+            state: 'hidden',
+            hitsRemaining: currentHitsRequired,
+            maxHits: currentHitsRequired
+          });
         }
         newGridData.push(row);
       }
@@ -77,7 +96,7 @@ export const useGame = () => {
 
     setGridData(newGridData);
     setArtifactsTotal(totalArtifacts);
-  }, [gridSize]);
+  }, [gridSize, completedLevels, pickaxeLevel]);
 
   const initGame = useCallback(() => {
     setHp(maxHp);
@@ -106,20 +125,30 @@ export const useGame = () => {
 
     if (cellData.state === 'flagged') return;
 
+    // Multi-hit system: reduce hits remaining
+    const newHitsRemaining = cellData.hitsRemaining - 1;
+    
+    if (newHitsRemaining > 0) {
+      // Cell not yet broken, just update hits
+      newGridData[r][c] = { ...cellData, hitsRemaining: newHitsRemaining };
+      setGridData(newGridData);
+      return;
+    }
+
+    // Cell is now broken (hitsRemaining reached 0)
     if (cellData.hasArtifact) {
-      newGridData[r][c] = { ...cellData, state: 'revealed' };
+      newGridData[r][c] = { ...cellData, state: 'revealed', hitsRemaining: 0 };
       setGridData(newGridData);
       const newFound = artifactsFound + 1;
       setArtifactsFound(newFound);
       
       if (newFound === artifactsTotal) {
         setIsGameActive(false);
-        setCompletedLevels(prev => prev + 1); // Increase difficulty for next level
+        setCompletedLevels(prev => prev + 1);
         const pointsToAdd = (doublePoints ? 2 : 1) * currentDifficulty.pointsMultiplier;
         setScore(prev => prev + pointsToAdd);
         setDoublePoints(false);
         setTimeout(() => {
-          // Pick a random artifact from a random era for variety
           const randomEraIndex = Math.floor(Math.random() * ERAS.length);
           const randomEra = ERAS[randomEraIndex];
           const randomArtifactIndex = Math.floor(Math.random() * randomEra.artifacts.length);
@@ -129,7 +158,7 @@ export const useGame = () => {
         }, 500);
       }
     } else {
-      newGridData[r][c] = { ...cellData, state: 'revealed' };
+      newGridData[r][c] = { ...cellData, state: 'revealed', hitsRemaining: 0 };
       setGridData(newGridData);
       
       // Check for shield protection
@@ -149,23 +178,26 @@ export const useGame = () => {
         }
       }
     }
-  }, [isGameActive, gridData, currentTool, artifactsFound, artifactsTotal, hp, currentEraIndex, currentArtifactIndex, shieldCount, doublePoints, currentDifficulty]);
+  }, [isGameActive, gridData, currentTool, artifactsFound, artifactsTotal, hp, shieldCount, doublePoints, currentDifficulty]);
 
   const useHint = useCallback(() => {
     if (hintCount <= 0 || !isGameActive) return;
     
-    for (let r = 0; r < gridSize; r++) {
-      for (let c = 0; c < gridSize; c++) {
+    const rows = gridData.length;
+    const cols = gridData[0]?.length ?? 0;
+    
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
         if (gridData[r][c].state === 'hidden' && !gridData[r][c].hasArtifact) {
           const newGridData = [...gridData.map(row => [...row])];
-          newGridData[r][c] = { ...gridData[r][c], state: 'revealed' };
+          newGridData[r][c] = { ...gridData[r][c], state: 'revealed', hitsRemaining: 0 };
           setGridData(newGridData);
           setHintCount(prev => prev - 1);
           return;
         }
       }
     }
-  }, [hintCount, isGameActive, gridData, gridSize]);
+  }, [hintCount, isGameActive, gridData]);
 
   const useXray = useCallback(() => {
     if (xrayCount <= 0 || !isGameActive) return;
@@ -238,6 +270,10 @@ export const useGame = () => {
         break;
       case 'lucky_charm':
         // Lucky charm just opens the cheat menu (handled in Shop component)
+        break;
+      case 'pickaxe_upgrade':
+        setPickaxeLevel(prev => prev + 1);
+        setOwnedItems(prev => [...prev, item.id]);
         break;
       case 'extra_life':
         setMaxHp(150);
@@ -383,6 +419,8 @@ export const useGame = () => {
     hintCount,
     xrayCount,
     claimedGift,
+    hitsRequired,
+    pickaxeLevel,
     initGame,
     handleCellClick,
     collectArtifact,

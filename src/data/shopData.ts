@@ -93,6 +93,14 @@ export const SHOP_ITEMS: ShopItem[] = [
     type: 'cosmetic',
   },
   {
+    id: 'pickaxe_upgrade',
+    name: 'שדרוג מכוש',
+    icon: '⛏️',
+    description: 'מפחית לחיצה אחת לחציבה (קבוע)',
+    price: 75,
+    type: 'tool',
+  },
+  {
     id: 'extra_life',
     name: 'חיים נוספים',
     icon: '❤️',

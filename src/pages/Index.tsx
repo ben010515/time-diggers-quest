@@ -40,6 +40,8 @@ const Index = () => {
     hintCount,
     xrayCount,
     claimedGift,
+    hitsRequired,
+    pickaxeLevel,
     initGame,
     handleCellClick,
     collectArtifact,
@@ -77,8 +79,13 @@ const Index = () => {
             {/* Level Progress Indicator */}
             <div className="w-full bg-gradient-to-r from-amber-200 to-amber-300 border-4 border-black p-2 mb-3 text-center shadow-md">
               <div className="font-black text-amber-900">
-                רמה {currentDifficulty.level} | לוח: {currentDifficulty.gridSize}x{currentDifficulty.gridSize} | נקודות: x{currentDifficulty.pointsMultiplier} | נזק: {Math.round(currentDifficulty.damageMultiplier * 100)}%
+                רמה {currentDifficulty.level} | לוח: {currentDifficulty.gridSize}x{currentDifficulty.gridSize} | חציבות: {hitsRequired} | נזק: {Math.round(currentDifficulty.damageMultiplier * 100)}%
               </div>
+              {pickaxeLevel > 0 && (
+                <div className="text-xs text-amber-700 mt-1">
+                  ⛏️ מכוש משודרג ({pickaxeLevel}+)
+                </div>
+              )}
             </div>
 
             {/* Info Panel */}

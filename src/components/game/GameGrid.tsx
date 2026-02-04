@@ -73,13 +73,23 @@ export const GameGrid: React.FC<GameGridProps> = ({
               if (cell.state === 'revealed') {
                 if (cell.hasArtifact) {
                   cellClasses += ' revealed-artifact';
-                  // Use the pre-generated random effect for this cell
                   content = cellEffects[r]?.[c] || '✨';
                 } else {
                   cellClasses += ' revealed-dirt error';
                 }
               } else if (cell.state === 'flagged') {
                 cellClasses += ' flagged';
+              } else if (cell.state === 'hidden' && cell.hitsRemaining < cell.maxHits) {
+                // Show cracking progress
+                const progress = 1 - (cell.hitsRemaining / cell.maxHits);
+                cellClasses += ' cracking';
+                if (progress >= 0.66) {
+                  cellClasses += ' crack-heavy';
+                } else if (progress >= 0.33) {
+                  cellClasses += ' crack-medium';
+                } else {
+                  cellClasses += ' crack-light';
+                }
               }
 
               return (
