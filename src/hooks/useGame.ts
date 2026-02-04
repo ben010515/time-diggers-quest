@@ -292,14 +292,14 @@ export const useGame = () => {
     setCurrentArtifactIndex(newArtifactIndex);
     setCurrentEraIndex(newEraIndex);
     
-    // Reset for new game
-    setTimeout(() => {
-      setHp(100);
+    // Reset for new game - use requestAnimationFrame to ensure state is settled
+    requestAnimationFrame(() => {
+      setHp(maxHp);
       setIsGameActive(true);
       setArtifactsFound(0);
       generateLevel(0.45);
-    }, 100);
-  }, [lastFoundArtifact, currentArtifactIndex, currentEraIndex, generateLevel]);
+    });
+  }, [lastFoundArtifact, currentArtifactIndex, currentEraIndex, generateLevel, maxHp]);
 
   // Cheat functions
   const addCheatPoints = useCallback((points: number) => {
