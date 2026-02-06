@@ -243,9 +243,9 @@ export const useGame = () => {
       return;
     }
     
-    // Items that can be purchased multiple times (consumables)
-    const consumableItems = ['heal', 'heal_full', 'shield', 'double_shield'];
-    if (!consumableItems.includes(item.id) && ownedItems.includes(item.id)) return;
+    // Items that can be purchased multiple times (consumables and upgrades)
+    const repeatableItems = ['heal', 'heal_full', 'shield', 'double_shield', 'pickaxe_upgrade'];
+    if (!repeatableItems.includes(item.id) && ownedItems.includes(item.id)) return;
     
     setScore(prev => prev - item.price);
     
