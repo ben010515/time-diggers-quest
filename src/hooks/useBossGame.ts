@@ -1,0 +1,500 @@
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { 
+  Boss, 
+  BOSSES, 
+  Weapon, 
+  WEAPONS,
+  BossDigCell, 
+  BossPlayer, 
+  BossShopItem,
+  BOSS_SHOP_ITEMS,
+  BOAZ_BEN_SWORD,
+  getRandomWeapon 
+} from '@/data/bossGameData';
+
+export type BossGamePhase = 'dig' | 'battle' | 'victory' | 'defeat';
+
+const GRID_SIZE = 5;
+const BASE_DIG_SLOTS = 10;
+const GRAVITY = 0.8;
+const JUMP_FORCE = -15;
+const MOVE_SPEED = 5;
+const GROUND_Y = 350;
+const ARENA_WIDTH = 400;
+
+export const useBossGame = (sharedScore: number, setSharedScore: (score: number | ((prev: number) => number)) => void) => {
+  // Game phase
+  const [phase, setPhase] = useState<BossGamePhase>('dig');
+  const [currentBossIndex, setCurrentBossIndex] = useState(0);
+  
+  // Dig phase state
+  const [digGrid, setDigGrid] = useState<BossDigCell[][]>([]);
+  const [digsRemaining, setDigsRemaining] = useState(BASE_DIG_SLOTS);
+  const [extraDigs, setExtraDigs] = useState(0);
+  const [luckBonus, setLuckBonus] = useState(0);
+  
+  // Inventory
+  const [inventory, setInventory] = useState<Weapon[]>([]);
+  const [equippedPrimary, setEquippedPrimary] = useState<Weapon | null>(null);
+  const [equippedSecondary, setEquippedSecondary] = useState<Weapon | null>(null);
+  const [arrowCount, setArrowCount] = useState(0);
+  const [hasBoazBen, setHasBoazBen] = useState(false);
+  
+  // Player state
+  const [player, setPlayer] = useState<BossPlayer>({
+    x: 50,
+    y: GROUND_Y,
+    velocityX: 0,
+    velocityY: 0,
+    isJumping: false,
+    hp: 100,
+    maxHp: 100,
+    defense: 0,
+    facingRight: true,
+    isAttacking: false,
+    isBlocking: false,
+  });
+  
+  // Boss state
+  const [bossHp, setBossHp] = useState(0);
+  const [bossX, setBossX] = useState(ARENA_WIDTH - 80);
+  const [bossAttacking, setBossAttacking] = useState(false);
+  const [projectiles, setProjectiles] = useState<Array<{ x: number; y: number; velocityX: number; icon: string }>>([]);
+  
+  // Stats
+  const [dragonHits, setDragonHits] = useState(0);
+  const [defenseBonus, setDefenseBonus] = useState(0);
+  
+  // Input state
+  const keysPressed = useRef<Set<string>>(new Set());
+  
+  const currentBoss = BOSSES[currentBossIndex];
+  
+  // Generate dig grid
+  const generateDigGrid = useCallback(() => {
+    const totalSlots = BASE_DIG_SLOTS + extraDigs;
+    const grid: BossDigCell[][] = [];
+    const itemPositions = new Set<string>();
+    
+    // Place items randomly
+    while (itemPositions.size < totalSlots) {
+      const r = Math.floor(Math.random() * GRID_SIZE);
+      const c = Math.floor(Math.random() * GRID_SIZE);
+      itemPositions.add(`${r},${c}`);
+    }
+    
+    for (let r = 0; r < GRID_SIZE; r++) {
+      const row: BossDigCell[] = [];
+      for (let c = 0; c < GRID_SIZE; c++) {
+        const hasItem = itemPositions.has(`${r},${c}`);
+        row.push({
+          hasItem,
+          item: hasItem ? getRandomWeapon(luckBonus) : undefined,
+          state: 'hidden',
+          hitsRemaining: 2,
+          maxHits: 2,
+        });
+      }
+      grid.push(row);
+    }
+    
+    setDigGrid(grid);
+    setDigsRemaining(totalSlots);
+  }, [extraDigs, luckBonus]);
+  
+  // Initialize game
+  const initBossGame = useCallback(() => {
+    setCurrentBossIndex(0);
+    setPhase('dig');
+    setInventory([]);
+    setEquippedPrimary(null);
+    setEquippedSecondary(null);
+    setArrowCount(0);
+    setPlayer({
+      x: 50,
+      y: GROUND_Y,
+      velocityX: 0,
+      velocityY: 0,
+      isJumping: false,
+      hp: 100,
+      maxHp: 100,
+      defense: 0,
+      facingRight: true,
+      isAttacking: false,
+      isBlocking: false,
+    });
+    setDefenseBonus(0);
+    setDragonHits(0);
+    generateDigGrid();
+  }, [generateDigGrid]);
+  
+  // Handle dig cell click
+  const handleDigClick = useCallback((r: number, c: number) => {
+    if (phase !== 'dig') return;
+    
+    const cell = digGrid[r][c];
+    if (cell.state === 'revealed') return;
+    
+    const newGrid = [...digGrid.map(row => [...row])];
+    const newHits = cell.hitsRemaining - 1;
+    
+    if (newHits > 0) {
+      newGrid[r][c] = { ...cell, hitsRemaining: newHits };
+      setDigGrid(newGrid);
+      return;
+    }
+    
+    // Reveal cell
+    newGrid[r][c] = { ...cell, state: 'revealed', hitsRemaining: 0 };
+    setDigGrid(newGrid);
+    
+    if (cell.hasItem && cell.item) {
+      // Add to inventory
+      if (cell.item.type === 'arrow') {
+        setArrowCount(prev => prev + 5);
+      } else {
+        setInventory(prev => [...prev, cell.item!]);
+      }
+      setDigsRemaining(prev => prev - 1);
+    }
+  }, [phase, digGrid]);
+  
+  // Start battle
+  const startBattle = useCallback(() => {
+    setPhase('battle');
+    setBossHp(currentBoss.hp);
+    setBossX(ARENA_WIDTH - 80);
+    setProjectiles([]);
+    setPlayer(prev => ({
+      ...prev,
+      x: 50,
+      y: GROUND_Y,
+      velocityX: 0,
+      velocityY: 0,
+      isJumping: false,
+      defense: defenseBonus + (equippedSecondary?.defense || 0),
+    }));
+  }, [currentBoss, defenseBonus, equippedSecondary]);
+  
+  // Equip weapon
+  const equipWeapon = useCallback((weapon: Weapon, slot: 'primary' | 'secondary') => {
+    if (slot === 'primary') {
+      setEquippedPrimary(weapon);
+    } else {
+      setEquippedSecondary(weapon);
+    }
+    setInventory(prev => prev.filter(w => w.id !== weapon.id));
+  }, []);
+  
+  // Attack boss
+  const attackBoss = useCallback(() => {
+    if (phase !== 'battle' || !equippedPrimary) return;
+    
+    setPlayer(prev => ({ ...prev, isAttacking: true }));
+    
+    // Check if in range
+    const distance = Math.abs(player.x - bossX);
+    const inRange = distance < equippedPrimary.range;
+    
+    if (inRange) {
+      let damage = equippedPrimary.damage;
+      
+      // Check for Boaz Ben sword against dragon
+      if (currentBoss.id === 'diamond_dragon' && equippedPrimary.id === 'boaz_ben') {
+        damage = 99999;
+      }
+      
+      const newHp = bossHp - damage;
+      setBossHp(Math.max(0, newHp));
+      
+      if (currentBoss.id === 'diamond_dragon') {
+        setDragonHits(prev => {
+          const newHits = prev + 1;
+          if (newHits % 10 === 0) {
+            setSharedScore(s => s + 25);
+          }
+          return newHits;
+        });
+      }
+      
+      if (newHp <= 0) {
+        // Boss defeated
+        setSharedScore(s => s + currentBoss.reward);
+        
+        if (currentBossIndex < BOSSES.length - 1) {
+          // Next boss
+          setCurrentBossIndex(prev => prev + 1);
+          setPhase('dig');
+          generateDigGrid();
+        } else {
+          setPhase('victory');
+        }
+      }
+    }
+    
+    setTimeout(() => {
+      setPlayer(prev => ({ ...prev, isAttacking: false }));
+    }, 200);
+  }, [phase, equippedPrimary, player.x, bossX, bossHp, currentBoss, currentBossIndex, setSharedScore, generateDigGrid]);
+  
+  // Block with shield
+  const block = useCallback((isBlocking: boolean) => {
+    if (equippedSecondary?.type === 'shield') {
+      setPlayer(prev => ({ ...prev, isBlocking }));
+    }
+  }, [equippedSecondary]);
+  
+  // Shoot arrow
+  const shootArrow = useCallback(() => {
+    if (phase !== 'battle' || arrowCount <= 0 || !equippedPrimary || equippedPrimary.type !== 'bow') return;
+    
+    setArrowCount(prev => prev - 1);
+    
+    // Create arrow projectile going toward boss
+    const direction = player.facingRight ? 1 : -1;
+    setProjectiles(prev => [...prev, {
+      x: player.x + (direction > 0 ? 40 : -10),
+      y: player.y - 20,
+      velocityX: direction * 10,
+      icon: '➵'
+    }]);
+  }, [phase, arrowCount, equippedPrimary, player.x, player.y, player.facingRight]);
+  
+  // Purchase boss shop item
+  const purchaseBossItem = useCallback((item: BossShopItem) => {
+    if (sharedScore < item.price) return;
+    
+    setSharedScore(s => s - item.price);
+    
+    switch (item.id) {
+      case 'luck_boost':
+        setLuckBonus(prev => prev + 1);
+        break;
+      case 'random_sword':
+        const randomSword = WEAPONS.filter(w => w.type === 'sword')[Math.floor(Math.random() * 5)];
+        setInventory(prev => [...prev, randomSword]);
+        break;
+      case 'heal_player':
+        setPlayer(prev => ({ ...prev, hp: Math.min(prev.maxHp, prev.hp + 50) }));
+        break;
+      case 'defense_boost':
+        setDefenseBonus(prev => prev + 5);
+        break;
+      case 'extra_dig':
+        setExtraDigs(prev => prev + 5);
+        break;
+      case 'boaz_ben':
+        setHasBoazBen(true);
+        setInventory(prev => [...prev, BOAZ_BEN_SWORD]);
+        break;
+    }
+  }, [sharedScore, setSharedScore]);
+  
+  // Game loop for battle phase
+  useEffect(() => {
+    if (phase !== 'battle') return;
+    
+    const gameLoop = setInterval(() => {
+      // Update player position
+      setPlayer(prev => {
+        let newX = prev.x;
+        let newY = prev.y;
+        let newVelocityY = prev.velocityY;
+        let isJumping = prev.isJumping;
+        let facingRight = prev.facingRight;
+        
+        // Horizontal movement
+        if (keysPressed.current.has('a') || keysPressed.current.has('arrowleft')) {
+          newX = Math.max(0, prev.x - MOVE_SPEED);
+          facingRight = false;
+        }
+        if (keysPressed.current.has('d') || keysPressed.current.has('arrowright')) {
+          newX = Math.min(ARENA_WIDTH - 40, prev.x + MOVE_SPEED);
+          facingRight = true;
+        }
+        
+        // Jumping
+        if ((keysPressed.current.has('w') || keysPressed.current.has('arrowup') || keysPressed.current.has(' ')) && !isJumping) {
+          newVelocityY = JUMP_FORCE;
+          isJumping = true;
+        }
+        
+        // Apply gravity
+        newVelocityY += GRAVITY;
+        newY += newVelocityY;
+        
+        // Ground collision
+        if (newY >= GROUND_Y) {
+          newY = GROUND_Y;
+          newVelocityY = 0;
+          isJumping = false;
+        }
+        
+        return { ...prev, x: newX, y: newY, velocityY: newVelocityY, isJumping, facingRight };
+      });
+      
+      // Boss AI
+      if (Math.random() < 0.02) {
+        setBossAttacking(true);
+        
+        if (currentBoss.attackType === 'ranged' && currentBoss.projectileIcon) {
+          // Shoot projectile
+          setProjectiles(prev => [...prev, {
+            x: bossX,
+            y: GROUND_Y - 30,
+            velocityX: -8,
+            icon: currentBoss.projectileIcon!
+          }]);
+        } else if (currentBoss.attackType === 'jump') {
+          // Jump toward player
+          setBossX(prev => Math.max(player.x + 50, prev - 100));
+        }
+        
+        setTimeout(() => setBossAttacking(false), 500);
+      }
+      
+      // Update projectiles
+      setProjectiles(prev => {
+        return prev
+          .map(p => ({ ...p, x: p.x + p.velocityX }))
+          .filter(p => p.x > -50 && p.x < ARENA_WIDTH + 50);
+      });
+      
+      // Check projectile collisions with player
+      setProjectiles(prev => {
+        const remaining: typeof prev = [];
+        for (const proj of prev) {
+          if (proj.velocityX < 0) { // Boss projectile
+            if (Math.abs(proj.x - player.x) < 30 && Math.abs(proj.y - player.y) < 40) {
+              // Hit player
+              const blocked = player.isBlocking;
+              const damage = blocked ? Math.max(0, currentBoss.damage - player.defense * 2) : Math.max(0, currentBoss.damage - player.defense);
+              setPlayer(p => {
+                const newHp = p.hp - damage;
+                if (newHp <= 0) {
+                  setPhase('defeat');
+                }
+                return { ...p, hp: Math.max(0, newHp) };
+              });
+            } else {
+              remaining.push(proj);
+            }
+          } else { // Player arrow
+            if (Math.abs(proj.x - bossX) < 50) {
+              // Hit boss
+              const arrowDamage = inventory.find(w => w.type === 'arrow')?.damage || 5;
+              setBossHp(prev => Math.max(0, prev - arrowDamage));
+              
+              if (currentBoss.id === 'diamond_dragon') {
+                setDragonHits(p => {
+                  const n = p + 1;
+                  if (n % 10 === 0) setSharedScore(s => s + 25);
+                  return n;
+                });
+              }
+            } else {
+              remaining.push(proj);
+            }
+          }
+        }
+        return remaining;
+      });
+      
+      // Check melee collision
+      if (bossAttacking && currentBoss.attackType === 'melee') {
+        if (Math.abs(player.x - bossX) < 60) {
+          const blocked = player.isBlocking;
+          const damage = blocked ? Math.max(0, currentBoss.damage - player.defense * 2) : Math.max(0, currentBoss.damage - player.defense);
+          setPlayer(p => {
+            const newHp = p.hp - damage;
+            if (newHp <= 0) {
+              setPhase('defeat');
+            }
+            return { ...p, hp: Math.max(0, newHp) };
+          });
+        }
+      }
+      
+    }, 1000 / 60);
+    
+    return () => clearInterval(gameLoop);
+  }, [phase, currentBoss, bossX, player.x, player.y, player.isBlocking, player.defense, bossAttacking, inventory, setSharedScore]);
+  
+  // Keyboard listeners
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      keysPressed.current.add(e.key.toLowerCase());
+      
+      // Attack on click or key
+      if (e.key === ' ' || e.key === 'Enter') {
+        if (equippedPrimary?.type === 'bow') {
+          shootArrow();
+        } else {
+          attackBoss();
+        }
+      }
+      
+      // Block with shift
+      if (e.key === 'Shift') {
+        block(true);
+      }
+    };
+    
+    const handleKeyUp = (e: KeyboardEvent) => {
+      keysPressed.current.delete(e.key.toLowerCase());
+      
+      if (e.key === 'Shift') {
+        block(false);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [attackBoss, shootArrow, block, equippedPrimary]);
+  
+  return {
+    // Phase
+    phase,
+    currentBoss,
+    currentBossIndex,
+    
+    // Dig
+    digGrid,
+    digsRemaining,
+    handleDigClick,
+    
+    // Inventory
+    inventory,
+    equippedPrimary,
+    equippedSecondary,
+    arrowCount,
+    hasBoazBen,
+    equipWeapon,
+    
+    // Battle
+    player,
+    bossHp,
+    bossX,
+    bossAttacking,
+    projectiles,
+    startBattle,
+    attackBoss,
+    block,
+    shootArrow,
+    dragonHits,
+    
+    // Shop
+    luckBonus,
+    defenseBonus,
+    purchaseBossItem,
+    
+    // Actions
+    initBossGame,
+    generateDigGrid,
+  };
+};
