@@ -403,6 +403,7 @@ export const useGame = () => {
     hp,
     maxHp,
     score,
+    setScore,
     ownedItems,
     hasShield,
     shieldCount,

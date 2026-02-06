@@ -12,8 +12,11 @@ import { DiscoveryModal } from '@/components/game/DiscoveryModal';
 import { FailModal } from '@/components/game/FailModal';
 import { CheatModal } from '@/components/game/CheatModal';
 import { StatsPanel } from '@/components/game/StatsPanel';
+import { ModeSelection, GameMode } from '@/components/game/ModeSelection';
+import { BossGameMode } from '@/components/game/BossGameMode';
 
 const Index = () => {
+  const [gameMode, setGameMode] = useState<GameMode | null>(null);
   const [activeTab, setActiveTab] = useState<'dig' | 'museum' | 'shop'>('dig');
   const [showHelp, setShowHelp] = useState(false);
   const [showCheat, setShowCheat] = useState(false);
@@ -27,6 +30,7 @@ const Index = () => {
     hp,
     maxHp,
     score,
+    setScore,
     ownedItems,
     hasShield,
     shieldCount,
@@ -58,8 +62,28 @@ const Index = () => {
   } = useGame();
 
   useEffect(() => {
-    initGame();
-  }, []);
+    if (gameMode === 'archaeology') {
+      initGame();
+    }
+  }, [gameMode]);
+
+  // Show mode selection if no mode chosen
+  if (!gameMode) {
+    return <ModeSelection onSelectMode={setGameMode} />;
+  }
+
+  // Boss battle mode
+  if (gameMode === 'boss_battle') {
+    return (
+      <BossGameMode 
+        score={score} 
+        setScore={setScore} 
+        onBackToMenu={() => setGameMode(null)} 
+      />
+    );
+  }
+
+  // Archaeology mode (original game)
 
   return (
     <div className="h-screen overflow-hidden flex items-center justify-center p-2">
