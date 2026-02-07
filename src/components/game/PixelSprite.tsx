@@ -146,71 +146,310 @@ export const PixelSprite: React.FC<PixelSpriteProps> = ({
     );
   }
 
-  // Boss sprite
+  // Boss sprite - unique scary designs for each
   const colors = getBossSprite(variant);
-  const isDragon = variant === 'diamond_dragon';
 
-  if (isDragon) {
+  // Sand Boss - Desert Golem
+  if (variant === 'sand_boss') {
     return (
-      <div 
-        className={`relative ${sizeClasses[size]} ${className}`}
-        style={{ imageRendering: 'pixelated' }}
-      >
-        <svg viewBox="0 0 24 20" className="w-full h-full">
-          {/* Dragon head */}
-          <rect x="16" y="2" width="6" height="4" fill={colors.body} />
-          <rect x="18" y="0" width="4" height="2" fill={colors.accent} />
-          {/* Eye */}
-          <rect x="19" y="3" width="2" height="2" fill={colors.eye} />
-          {/* Mouth */}
-          <rect x="22" y="4" width="2" height="2" fill="#FF4500" />
-          {/* Neck */}
-          <rect x="12" y="4" width="4" height="4" fill={colors.body} />
-          {/* Body */}
-          <rect x="4" y="6" width="12" height="8" fill={colors.body} />
-          <rect x="6" y="8" width="8" height="4" fill={colors.accent} />
-          {/* Wings */}
-          <rect x="8" y="0" width="4" height="6" fill={colors.accent} />
-          <rect x="4" y="2" width="4" height="4" fill={colors.accent} />
-          {/* Tail */}
-          <rect x="0" y="10" width="4" height="2" fill={colors.body} />
-          <rect x="0" y="8" width="2" height="2" fill={colors.accent} />
-          {/* Legs */}
-          <rect x="6" y="14" width="3" height="4" fill={colors.body} />
-          <rect x="13" y="14" width="3" height="4" fill={colors.body} />
+      <div className={`relative ${sizeClasses[size]} ${className}`} style={{ imageRendering: 'pixelated' }}>
+        <svg viewBox="0 0 16 16" className="w-full h-full">
+          {/* Sandy body with cracks */}
+          <rect x="3" y="3" width="10" height="11" fill="#DEB887" />
+          <rect x="4" y="2" width="8" height="2" fill="#F4D03F" />
+          {/* Angry glowing eyes */}
+          <rect x="4" y="5" width="3" height="3" fill="#000" />
+          <rect x="9" y="5" width="3" height="3" fill="#000" />
+          <rect x="5" y="6" width="1" height="1" fill="#FF0000" />
+          <rect x="10" y="6" width="1" height="1" fill="#FF0000" />
+          {/* Jagged mouth */}
+          <rect x="5" y="10" width="6" height="2" fill="#000" />
+          <rect x="6" y="10" width="1" height="1" fill="#F4D03F" />
+          <rect x="9" y="10" width="1" height="1" fill="#F4D03F" />
+          {/* Sand particles */}
+          <rect x="2" y="8" width="1" height="1" fill="#DEB887" className="animate-pulse" />
+          <rect x="13" y="6" width="1" height="1" fill="#DEB887" className="animate-pulse" />
           {/* Claws */}
-          <rect x="5" y="18" width="5" height="2" fill="#2F2F2F" />
-          <rect x="12" y="18" width="5" height="2" fill="#2F2F2F" />
+          <rect x="1" y="7" width="2" height="5" fill="#C4A35A" />
+          <rect x="13" y="7" width="2" height="5" fill="#C4A35A" />
         </svg>
       </div>
     );
   }
 
+  // Wood Boss - Evil Tree Monster
+  if (variant === 'wood_boss') {
+    return (
+      <div className={`relative ${sizeClasses[size]} ${className}`} style={{ imageRendering: 'pixelated' }}>
+        <svg viewBox="0 0 16 16" className="w-full h-full">
+          {/* Trunk body */}
+          <rect x="4" y="4" width="8" height="10" fill="#654321" />
+          <rect x="5" y="4" width="2" height="10" fill="#8B4513" />
+          {/* Scary face carved in trunk */}
+          <rect x="5" y="6" width="2" height="2" fill="#2F0000" />
+          <rect x="9" y="6" width="2" height="2" fill="#2F0000" />
+          <rect x="5" y="6" width="1" height="1" fill="#00FF00" />
+          <rect x="10" y="6" width="1" height="1" fill="#00FF00" />
+          {/* Mouth with fangs */}
+          <rect x="5" y="10" width="6" height="3" fill="#2F0000" />
+          <rect x="6" y="10" width="1" height="2" fill="#FFFACD" />
+          <rect x="9" y="10" width="1" height="2" fill="#FFFACD" />
+          {/* Branch arms */}
+          <rect x="0" y="5" width="4" height="2" fill="#654321" />
+          <rect x="12" y="5" width="4" height="2" fill="#654321" />
+          <rect x="0" y="4" width="1" height="2" fill="#228B22" />
+          <rect x="15" y="4" width="1" height="2" fill="#228B22" />
+          {/* Roots */}
+          <rect x="3" y="14" width="2" height="2" fill="#3D2914" />
+          <rect x="11" y="14" width="2" height="2" fill="#3D2914" />
+        </svg>
+      </div>
+    );
+  }
+
+  // Stone Boss - Rock Golem
+  if (variant === 'stone_boss') {
+    return (
+      <div className={`relative ${sizeClasses[size]} ${className}`} style={{ imageRendering: 'pixelated' }}>
+        <svg viewBox="0 0 16 16" className="w-full h-full">
+          {/* Rocky body */}
+          <rect x="2" y="3" width="12" height="11" fill="#696969" />
+          <rect x="4" y="2" width="8" height="2" fill="#808080" />
+          <rect x="3" y="4" width="3" height="3" fill="#A9A9A9" />
+          <rect x="10" y="7" width="2" height="2" fill="#A9A9A9" />
+          {/* Glowing crystal eyes */}
+          <rect x="4" y="5" width="3" height="3" fill="#000" />
+          <rect x="9" y="5" width="3" height="3" fill="#000" />
+          <rect x="5" y="6" width="1" height="1" fill="#FF00FF" />
+          <rect x="10" y="6" width="1" height="1" fill="#FF00FF" />
+          {/* Cracked mouth */}
+          <rect x="5" y="10" width="6" height="2" fill="#2F2F2F" />
+          {/* Stone fists */}
+          <rect x="0" y="6" width="3" height="4" fill="#808080" />
+          <rect x="13" y="6" width="3" height="4" fill="#808080" />
+        </svg>
+      </div>
+    );
+  }
+
+  // Coal Boss - Shadow Demon
+  if (variant === 'coal_boss') {
+    return (
+      <div className={`relative ${sizeClasses[size]} ${className}`} style={{ imageRendering: 'pixelated' }}>
+        <svg viewBox="0 0 16 16" className="w-full h-full">
+          {/* Dark smoky body */}
+          <rect x="3" y="2" width="10" height="12" fill="#1a1a1a" />
+          <rect x="2" y="4" width="12" height="8" fill="#2C3E50" />
+          {/* Burning ember eyes */}
+          <rect x="4" y="5" width="3" height="3" fill="#FF4500" />
+          <rect x="9" y="5" width="3" height="3" fill="#FF4500" />
+          <rect x="5" y="6" width="1" height="1" fill="#FFFF00" />
+          <rect x="10" y="6" width="1" height="1" fill="#FFFF00" />
+          {/* Fire mouth */}
+          <rect x="5" y="10" width="6" height="3" fill="#FF4500" />
+          <rect x="6" y="10" width="1" height="2" fill="#FFFF00" />
+          <rect x="9" y="10" width="1" height="2" fill="#FFFF00" />
+          {/* Smoke wisps */}
+          <rect x="2" y="2" width="1" height="2" fill="#4a4a4a" className="animate-pulse" />
+          <rect x="13" y="3" width="1" height="2" fill="#4a4a4a" className="animate-pulse" />
+        </svg>
+      </div>
+    );
+  }
+
+  // Clay Boss - Ancient Golem
+  if (variant === 'clay_boss') {
+    return (
+      <div className={`relative ${sizeClasses[size]} ${className}`} style={{ imageRendering: 'pixelated' }}>
+        <svg viewBox="0 0 16 16" className="w-full h-full">
+          {/* Clay body */}
+          <rect x="3" y="3" width="10" height="11" fill="#CD853F" />
+          <rect x="4" y="2" width="8" height="2" fill="#D2691E" />
+          {/* Cracked pattern */}
+          <rect x="5" y="4" width="1" height="8" fill="#8B4513" />
+          <rect x="10" y="5" width="1" height="6" fill="#8B4513" />
+          {/* Empty hollow eyes */}
+          <rect x="4" y="5" width="3" height="3" fill="#2F1810" />
+          <rect x="9" y="5" width="3" height="3" fill="#2F1810" />
+          <rect x="5" y="6" width="1" height="1" fill="#8B0000" />
+          <rect x="10" y="6" width="1" height="1" fill="#8B0000" />
+          {/* Mouth */}
+          <rect x="5" y="10" width="6" height="2" fill="#2F1810" />
+          {/* Arms */}
+          <rect x="1" y="6" width="2" height="5" fill="#CD853F" />
+          <rect x="13" y="6" width="2" height="5" fill="#CD853F" />
+        </svg>
+      </div>
+    );
+  }
+
+  // Iron Boss - Armored Knight
+  if (variant === 'iron_boss') {
+    return (
+      <div className={`relative ${sizeClasses[size]} ${className}`} style={{ imageRendering: 'pixelated' }}>
+        <svg viewBox="0 0 16 16" className="w-full h-full">
+          {/* Helmet */}
+          <rect x="3" y="1" width="10" height="5" fill="#C0C0C0" />
+          <rect x="4" y="0" width="8" height="2" fill="#A9A9A9" />
+          {/* Visor slits (eyes) */}
+          <rect x="4" y="3" width="3" height="1" fill="#000" />
+          <rect x="9" y="3" width="3" height="1" fill="#000" />
+          <rect x="5" y="3" width="1" height="1" fill="#FF0000" />
+          <rect x="10" y="3" width="1" height="1" fill="#FF0000" />
+          {/* Armor body */}
+          <rect x="3" y="6" width="10" height="8" fill="#808080" />
+          <rect x="5" y="7" width="6" height="5" fill="#C0C0C0" />
+          {/* Sword */}
+          <rect x="14" y="4" width="2" height="8" fill="#E8E8E8" />
+          <rect x="13" y="8" width="4" height="2" fill="#8B4513" />
+          {/* Shield */}
+          <rect x="0" y="6" width="3" height="5" fill="#C0C0C0" />
+          <rect x="1" y="7" width="1" height="3" fill="#FFD700" />
+        </svg>
+      </div>
+    );
+  }
+
+  // Gold Boss - Treasure King
+  if (variant === 'gold_boss') {
+    return (
+      <div className={`relative ${sizeClasses[size]} ${className}`} style={{ imageRendering: 'pixelated' }}>
+        <svg viewBox="0 0 16 16" className="w-full h-full">
+          {/* Crown */}
+          <rect x="3" y="0" width="10" height="3" fill="#FFD700" />
+          <rect x="4" y="0" width="2" height="1" fill="#FF0000" />
+          <rect x="10" y="0" width="2" height="1" fill="#0000FF" />
+          <rect x="7" y="0" width="2" height="1" fill="#00FF00" />
+          {/* Golden body */}
+          <rect x="3" y="3" width="10" height="11" fill="#DAA520" />
+          <rect x="4" y="4" width="8" height="8" fill="#FFD700" />
+          {/* Greedy eyes */}
+          <rect x="4" y="5" width="3" height="3" fill="#000" />
+          <rect x="9" y="5" width="3" height="3" fill="#000" />
+          <rect x="5" y="6" width="1" height="1" fill="#00FF00" />
+          <rect x="10" y="6" width="1" height="1" fill="#00FF00" />
+          {/* Evil grin */}
+          <rect x="5" y="10" width="6" height="2" fill="#000" />
+          <rect x="6" y="10" width="4" height="1" fill="#FFD700" />
+        </svg>
+      </div>
+    );
+  }
+
+  // Bone Boss - Skeleton Lord
+  if (variant === 'bone_boss') {
+    return (
+      <div className={`relative ${sizeClasses[size]} ${className}`} style={{ imageRendering: 'pixelated' }}>
+        <svg viewBox="0 0 16 16" className="w-full h-full">
+          {/* Skull */}
+          <rect x="3" y="1" width="10" height="7" fill="#FFFAF0" />
+          <rect x="4" y="0" width="8" height="2" fill="#F5F5DC" />
+          {/* Empty eye sockets */}
+          <rect x="4" y="3" width="3" height="3" fill="#000" />
+          <rect x="9" y="3" width="3" height="3" fill="#000" />
+          <rect x="5" y="4" width="1" height="1" fill="#FF0000" />
+          <rect x="10" y="4" width="1" height="1" fill="#FF0000" />
+          {/* Nose hole */}
+          <rect x="7" y="5" width="2" height="2" fill="#2F2F2F" />
+          {/* Teeth */}
+          <rect x="5" y="7" width="6" height="2" fill="#000" />
+          <rect x="5" y="7" width="1" height="1" fill="#FFFAF0" />
+          <rect x="7" y="7" width="1" height="1" fill="#FFFAF0" />
+          <rect x="9" y="7" width="1" height="1" fill="#FFFAF0" />
+          {/* Ribcage body */}
+          <rect x="4" y="9" width="8" height="5" fill="#2F2F2F" />
+          <rect x="5" y="10" width="1" height="3" fill="#FFFAF0" />
+          <rect x="7" y="10" width="1" height="3" fill="#FFFAF0" />
+          <rect x="9" y="10" width="1" height="3" fill="#FFFAF0" />
+          {/* Bone arms */}
+          <rect x="1" y="9" width="3" height="1" fill="#FFFAF0" />
+          <rect x="12" y="9" width="3" height="1" fill="#FFFAF0" />
+          <rect x="0" y="10" width="2" height="4" fill="#FFFAF0" />
+          <rect x="14" y="10" width="2" height="4" fill="#FFFAF0" />
+        </svg>
+      </div>
+    );
+  }
+
+  // Magma Boss - Lava Demon
+  if (variant === 'magma_boss') {
+    return (
+      <div className={`relative ${sizeClasses[size]} ${className}`} style={{ imageRendering: 'pixelated' }}>
+        <svg viewBox="0 0 16 16" className="w-full h-full">
+          {/* Volcanic body */}
+          <rect x="3" y="3" width="10" height="11" fill="#8B0000" />
+          <rect x="4" y="2" width="8" height="2" fill="#FF4500" />
+          {/* Lava cracks */}
+          <rect x="5" y="5" width="1" height="6" fill="#FF6600" />
+          <rect x="10" y="4" width="1" height="7" fill="#FF6600" />
+          <rect x="7" y="8" width="2" height="1" fill="#FFFF00" />
+          {/* Burning eyes */}
+          <rect x="4" y="5" width="3" height="3" fill="#FFFF00" />
+          <rect x="9" y="5" width="3" height="3" fill="#FFFF00" />
+          <rect x="5" y="6" width="1" height="1" fill="#FF0000" />
+          <rect x="10" y="6" width="1" height="1" fill="#FF0000" />
+          {/* Fire mouth */}
+          <rect x="5" y="10" width="6" height="3" fill="#FFFF00" />
+          <rect x="6" y="11" width="1" height="2" fill="#FF4500" />
+          <rect x="9" y="11" width="1" height="2" fill="#FF4500" />
+          {/* Flame horns */}
+          <rect x="3" y="0" width="2" height="3" fill="#FF4500" />
+          <rect x="11" y="0" width="2" height="3" fill="#FF4500" />
+        </svg>
+      </div>
+    );
+  }
+
+  // Diamond Dragon - Ultimate Boss
+  if (variant === 'diamond_dragon') {
+    return (
+      <div className={`relative ${sizeClasses[size]} ${className}`} style={{ imageRendering: 'pixelated' }}>
+        <svg viewBox="0 0 24 20" className="w-full h-full">
+          {/* Dragon head */}
+          <rect x="16" y="2" width="6" height="5" fill="#00CED1" />
+          <rect x="18" y="0" width="4" height="3" fill="#00FFFF" />
+          {/* Glowing eyes */}
+          <rect x="18" y="3" width="2" height="2" fill="#FF1493" />
+          <rect x="19" y="3" width="1" height="1" fill="#FFFFFF" />
+          {/* Fire breath mouth */}
+          <rect x="22" y="4" width="2" height="3" fill="#FF4500" />
+          {/* Neck */}
+          <rect x="12" y="4" width="5" height="5" fill="#00CED1" />
+          {/* Body with crystal pattern */}
+          <rect x="3" y="6" width="12" height="9" fill="#00CED1" />
+          <rect x="5" y="8" width="2" height="2" fill="#00FFFF" />
+          <rect x="9" y="7" width="2" height="3" fill="#00FFFF" />
+          <rect x="12" y="9" width="2" height="2" fill="#00FFFF" />
+          {/* Wings */}
+          <rect x="7" y="0" width="5" height="7" fill="#E0FFFF" />
+          <rect x="3" y="2" width="4" height="5" fill="#E0FFFF" />
+          <rect x="4" y="3" width="1" height="3" fill="#00FFFF" />
+          {/* Tail with spike */}
+          <rect x="0" y="10" width="4" height="2" fill="#00CED1" />
+          <rect x="0" y="8" width="2" height="3" fill="#00FFFF" />
+          {/* Legs with claws */}
+          <rect x="5" y="15" width="3" height="4" fill="#00CED1" />
+          <rect x="12" y="15" width="3" height="4" fill="#00CED1" />
+          <rect x="4" y="18" width="5" height="2" fill="#2F2F2F" />
+          <rect x="11" y="18" width="5" height="2" fill="#2F2F2F" />
+        </svg>
+      </div>
+    );
+  }
+
+  // Default monster (fallback)
   return (
-    <div 
-      className={`relative ${sizeClasses[size]} ${className}`}
-      style={{ imageRendering: 'pixelated' }}
-    >
+    <div className={`relative ${sizeClasses[size]} ${className}`} style={{ imageRendering: 'pixelated' }}>
       <svg viewBox="0 0 16 16" className="w-full h-full">
-        {/* Monster body */}
         <rect x="2" y="4" width="12" height="10" fill={colors.body} />
         <rect x="4" y="2" width="8" height="2" fill={colors.body} />
-        {/* Eyes */}
         <rect x="4" y="6" width="3" height="3" fill="white" />
         <rect x="9" y="6" width="3" height="3" fill="white" />
         <rect x="5" y="7" width="2" height="2" fill={colors.eye} />
         <rect x="10" y="7" width="2" height="2" fill={colors.eye} />
-        {/* Mouth */}
         <rect x="5" y="11" width="6" height="2" fill="#2F2F2F" />
-        <rect x="6" y="11" width="1" height="1" fill="white" />
-        <rect x="9" y="11" width="1" height="1" fill="white" />
-        {/* Accent details */}
-        <rect x="3" y="5" width="2" height="1" fill={colors.accent} />
-        <rect x="11" y="5" width="2" height="1" fill={colors.accent} />
-        {/* Arms */}
         <rect x="0" y="6" width="2" height="6" fill={colors.body} />
         <rect x="14" y="6" width="2" height="6" fill={colors.body} />
-        {/* Legs */}
         <rect x="3" y="14" width="4" height="2" fill={colors.body} />
         <rect x="9" y="14" width="4" height="2" fill={colors.body} />
       </svg>
