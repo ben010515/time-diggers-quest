@@ -159,7 +159,7 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
     }
   }, [phase, digGrid, digsRemaining]);
   
-  // Start battle
+  // Start battle - reset player HP!
   const startBattle = useCallback(() => {
     setPhase('battle');
     setBossHp(currentBoss.hp);
@@ -172,6 +172,7 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
       velocityX: 0,
       velocityY: 0,
       isJumping: false,
+      hp: prev.maxHp, // RESET HP to full!
       defense: defenseBonus + (equippedSecondary?.defense || 0),
     }));
   }, [currentBoss, defenseBonus, equippedSecondary]);
