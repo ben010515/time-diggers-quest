@@ -16,7 +16,65 @@ interface BossBattleArena16BitProps {
   arrowCount: number;
 }
 
-const ARENA_DISPLAY_WIDTH = 450;
+const GROUND_Y = 180; // Must match useBossGame
+
+// Background themes for each boss
+const getBossBackground = (bossId: string) => {
+  const backgrounds: Record<string, { sky: string; ground: string; groundAccent: string; grass?: string }> = {
+    sand_boss: { 
+      sky: 'linear-gradient(180deg, #87CEEB 0%, #F4D03F 50%, #DEB887 100%)', 
+      ground: '#F4D03F', 
+      groundAccent: '#DEB887',
+    },
+    wood_boss: { 
+      sky: 'linear-gradient(180deg, #228B22 0%, #2E8B2E 50%, #1E7B1E 100%)', 
+      ground: '#8B4513', 
+      groundAccent: '#654321',
+      grass: '#228B22',
+    },
+    stone_boss: { 
+      sky: 'linear-gradient(180deg, #708090 0%, #A9A9A9 50%, #808080 100%)', 
+      ground: '#696969', 
+      groundAccent: '#808080',
+    },
+    coal_boss: { 
+      sky: 'linear-gradient(180deg, #1a1a1a 0%, #2C3E50 50%, #1a1a2e 100%)', 
+      ground: '#2F2F2F', 
+      groundAccent: '#1a1a1a',
+    },
+    clay_boss: { 
+      sky: 'linear-gradient(180deg, #DEB887 0%, #CD853F 50%, #A0522D 100%)', 
+      ground: '#CD853F', 
+      groundAccent: '#8B4513',
+    },
+    iron_boss: { 
+      sky: 'linear-gradient(180deg, #A9A9A9 0%, #C0C0C0 50%, #D3D3D3 100%)', 
+      ground: '#808080', 
+      groundAccent: '#A9A9A9',
+    },
+    gold_boss: { 
+      sky: 'linear-gradient(180deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%)', 
+      ground: '#DAA520', 
+      groundAccent: '#B8860B',
+    },
+    bone_boss: { 
+      sky: 'linear-gradient(180deg, #2F2F2F 0%, #483D8B 50%, #1a1a2e 100%)', 
+      ground: '#FFFAF0', 
+      groundAccent: '#F5F5DC',
+    },
+    magma_boss: { 
+      sky: 'linear-gradient(180deg, #8B0000 0%, #FF4500 50%, #FF6347 100%)', 
+      ground: '#2F2F2F', 
+      groundAccent: '#FF4500',
+    },
+    diamond_dragon: { 
+      sky: 'linear-gradient(180deg, #00CED1 0%, #00FFFF 30%, #E0FFFF 60%, #87CEEB 100%)', 
+      ground: '#00CED1', 
+      groundAccent: '#00FFFF',
+    },
+  };
+  return backgrounds[bossId] || backgrounds.sand_boss;
+};
 
 export const BossBattleArena16Bit: React.FC<BossBattleArena16BitProps> = ({
   boss,
@@ -64,6 +122,7 @@ export const BossBattleArena16Bit: React.FC<BossBattleArena16BitProps> = ({
 
   const hpPercentage = (bossHp / boss.hp) * 100;
   const playerHpPercentage = (player.hp / player.maxHp) * 100;
+  const bossTheme = getBossBackground(boss.id);
 
   return (
     <div className="w-full">
@@ -84,70 +143,109 @@ export const BossBattleArena16Bit: React.FC<BossBattleArena16BitProps> = ({
         </div>
       </div>
 
-      {/* Arena - 16-bit platformer style */}
+      {/* Arena - 16-bit platformer style with boss-specific background */}
       <div 
         className="relative border-4 border-black overflow-hidden"
         style={{ 
           height: '220px', 
           width: '100%',
           imageRendering: 'pixelated',
-          background: `linear-gradient(180deg, 
-            #1a1a2e 0%, 
-            #16213e 30%, 
-            #0f3460 60%, 
-            #533483 100%)`,
+          background: bossTheme.sky,
         }}
       >
-        {/* Pixel stars background */}
-        <div className="absolute inset-0 opacity-50">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-1 h-1 bg-white"
+        {/* Decorative elements based on boss */}
+        {boss.id === 'sand_boss' && (
+          <>
+            {/* Sand dunes */}
+            {[...Array(5)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute"
+                style={{
+                  bottom: 48,
+                  left: `${i * 25}%`,
+                  width: '60px',
+                  height: '30px',
+                  background: '#DEB887',
+                  borderRadius: '50% 50% 0 0',
+                  opacity: 0.7,
+                }}
+              />
+            ))}
+            {/* Sun */}
+            <div 
+              className="absolute"
               style={{
-                left: `${(i * 17) % 100}%`,
-                top: `${(i * 13) % 40}%`,
-                opacity: 0.3 + (i % 3) * 0.3,
+                top: '10px',
+                right: '20px',
+                width: '40px',
+                height: '40px',
+                background: 'radial-gradient(circle, #FFD700 0%, #FFA500 100%)',
+                borderRadius: '50%',
+                boxShadow: '0 0 20px #FFD700',
               }}
             />
-          ))}
-        </div>
+          </>
+        )}
+        
+        {boss.id === 'magma_boss' && (
+          <>
+            {/* Lava bubbles */}
+            {[...Array(8)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute animate-bounce"
+                style={{
+                  bottom: 48 + (i % 3) * 10,
+                  left: `${(i * 15) % 100}%`,
+                  width: '10px',
+                  height: '10px',
+                  background: '#FF4500',
+                  borderRadius: '50%',
+                  animationDelay: `${i * 0.2}s`,
+                }}
+              />
+            ))}
+          </>
+        )}
 
-        {/* Ground - pixel blocks */}
+        {/* Ground - pixel blocks with boss theme */}
         <div className="absolute bottom-0 w-full h-12 flex">
           {[...Array(25)].map((_, i) => (
             <div
               key={i}
-              className="flex-1 border-t-2 border-l border-gray-600"
+              className="flex-1 border-t-2 border-l border-black/20"
               style={{
                 background: i % 2 === 0 
-                  ? `linear-gradient(180deg, #654321 0%, #3d2914 50%, #2d1f0f 100%)`
-                  : `linear-gradient(180deg, #5a3d1f 0%, #3a2815 50%, #261a0c 100%)`,
+                  ? bossTheme.ground
+                  : bossTheme.groundAccent,
               }}
             />
           ))}
         </div>
 
-        {/* Grass layer */}
-        <div className="absolute bottom-12 w-full h-2 flex">
-          {[...Array(50)].map((_, i) => (
-            <div
-              key={i}
-              className="flex-1"
-              style={{
-                background: i % 3 === 0 ? '#228B22' : i % 3 === 1 ? '#2E8B2E' : '#1E7B1E',
-                borderTop: '1px solid #32CD32',
-              }}
-            />
-          ))}
-        </div>
+        {/* Grass layer (if applicable) */}
+        {bossTheme.grass && (
+          <div className="absolute bottom-12 w-full h-2 flex">
+            {[...Array(50)].map((_, i) => (
+              <div
+                key={i}
+                className="flex-1"
+                style={{
+                  background: bossTheme.grass,
+                  borderTop: '1px solid #32CD32',
+                }}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Player - 16-bit sprite */}
         <div
           className={`absolute transition-all duration-75 ${player.isAttacking ? 'scale-110' : ''} ${player.isBlocking ? 'brightness-150' : ''}`}
           style={{
             left: player.x,
-            bottom: 14 + (350 - player.y) * 0.4,
+            bottom: 14 + Math.max(0, (GROUND_Y - player.y)),
             zIndex: 10,
           }}
         >
@@ -199,7 +297,7 @@ export const BossBattleArena16Bit: React.FC<BossBattleArena16BitProps> = ({
         <div
           className={`absolute transition-all duration-200 ${bossAttacking ? 'scale-110' : ''}`}
           style={{
-            left: bossX * 0.9,
+            left: bossX,
             bottom: 14,
             zIndex: 10,
           }}
@@ -234,8 +332,8 @@ export const BossBattleArena16Bit: React.FC<BossBattleArena16BitProps> = ({
             key={idx}
             className="absolute flex items-center justify-center animate-pulse"
             style={{
-              left: proj.x * 0.9,
-              bottom: 14 + (350 - proj.y) * 0.4,
+              left: proj.x,
+              bottom: 14 + Math.max(0, (GROUND_Y - proj.y)),
               width: proj.velocityX > 0 ? '20px' : '24px',
               height: proj.velocityX > 0 ? '8px' : '16px',
               background: proj.velocityX > 0 
