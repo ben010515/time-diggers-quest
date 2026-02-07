@@ -176,15 +176,26 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
     }));
   }, [currentBoss, defenseBonus, equippedSecondary]);
   
-  // Equip weapon
+  // Equip weapon - returns old weapon to inventory
   const equipWeapon = useCallback((weapon: Weapon, slot: 'primary' | 'secondary') => {
     if (slot === 'primary') {
+      // Return old equipped weapon to inventory
+      if (equippedPrimary) {
+        setInventory(prev => [...prev.filter(w => w.id !== weapon.id), equippedPrimary]);
+      } else {
+        setInventory(prev => prev.filter(w => w.id !== weapon.id));
+      }
       setEquippedPrimary(weapon);
     } else {
+      // Return old equipped weapon to inventory
+      if (equippedSecondary) {
+        setInventory(prev => [...prev.filter(w => w.id !== weapon.id), equippedSecondary]);
+      } else {
+        setInventory(prev => prev.filter(w => w.id !== weapon.id));
+      }
       setEquippedSecondary(weapon);
     }
-    setInventory(prev => prev.filter(w => w.id !== weapon.id));
-  }, []);
+  }, [equippedPrimary, equippedSecondary]);
   
   // Attack boss
   const attackBoss = useCallback(() => {
