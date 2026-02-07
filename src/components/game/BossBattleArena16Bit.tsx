@@ -463,74 +463,98 @@ export const BossBattleArena16Bit: React.FC<BossBattleArena16BitProps> = ({
         </div>
       </div>
 
-      {/* Mobile Controls - 16-bit style */}
-      <div className="mt-3 flex justify-between items-center">
-        {/* D-Pad style movement */}
+      {/* Mobile Controls - 16-bit style with bigger touch targets */}
+      <div className="mt-3 flex justify-between items-center px-2">
+        {/* D-Pad style movement - larger for mobile */}
         <div className="flex flex-col items-center gap-1">
           <button
             onClick={handleJumpButton}
-            className="w-10 h-10 bg-gray-700 border-4 border-black text-white text-lg font-black 
-                     active:bg-gray-900 shadow-[2px_2px_0_#000]"
+            className="w-14 h-14 bg-gray-700 border-4 border-black text-white text-2xl font-black 
+                     active:bg-gray-900 shadow-[3px_3px_0_#000] active:shadow-none active:translate-x-[3px] active:translate-y-[3px]
+                     touch-manipulation select-none"
             style={{ imageRendering: 'pixelated' }}
           >
             ▲
           </button>
           <div className="flex gap-1">
             <button
-              onTouchStart={() => handleLeftButton(true)}
-              onTouchEnd={() => handleLeftButton(false)}
+              onTouchStart={(e) => { e.preventDefault(); handleLeftButton(true); }}
+              onTouchEnd={(e) => { e.preventDefault(); handleLeftButton(false); }}
               onMouseDown={() => handleLeftButton(true)}
               onMouseUp={() => handleLeftButton(false)}
-              className="w-10 h-10 bg-gray-700 border-4 border-black text-white text-lg font-black 
-                       active:bg-gray-900 shadow-[2px_2px_0_#000]"
+              onMouseLeave={() => handleLeftButton(false)}
+              className="w-14 h-14 bg-gray-700 border-4 border-black text-white text-2xl font-black 
+                       active:bg-gray-900 shadow-[3px_3px_0_#000] active:shadow-none active:translate-x-[3px] active:translate-y-[3px]
+                       touch-manipulation select-none"
             >
               ◀
             </button>
+            <div className="w-14 h-14" /> {/* Spacer */}
             <button
-              onTouchStart={() => handleRightButton(true)}
-              onTouchEnd={() => handleRightButton(false)}
+              onTouchStart={(e) => { e.preventDefault(); handleRightButton(true); }}
+              onTouchEnd={(e) => { e.preventDefault(); handleRightButton(false); }}
               onMouseDown={() => handleRightButton(true)}
               onMouseUp={() => handleRightButton(false)}
-              className="w-10 h-10 bg-gray-700 border-4 border-black text-white text-lg font-black 
-                       active:bg-gray-900 shadow-[2px_2px_0_#000]"
+              onMouseLeave={() => handleRightButton(false)}
+              className="w-14 h-14 bg-gray-700 border-4 border-black text-white text-2xl font-black 
+                       active:bg-gray-900 shadow-[3px_3px_0_#000] active:shadow-none active:translate-x-[3px] active:translate-y-[3px]
+                       touch-manipulation select-none"
             >
               ▶
             </button>
           </div>
         </div>
 
-        {/* Action buttons */}
-        <div className="flex gap-2">
-          <button
-            onTouchStart={() => handleBlockButton(true)}
-            onTouchEnd={() => handleBlockButton(false)}
-            onMouseDown={() => handleBlockButton(true)}
-            onMouseUp={() => handleBlockButton(false)}
-            disabled={!equippedSecondary || equippedSecondary.type !== 'shield'}
-            className="w-14 h-14 bg-blue-600 border-4 border-black text-xl 
-                     active:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed
-                     shadow-[3px_3px_0_#000] active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
-          >
-            🛡️
-          </button>
+        {/* Action buttons - larger for mobile */}
+        <div className="flex flex-col gap-2 items-end">
+          {/* Top row: Shield and Arrow buttons */}
+          <div className="flex gap-2">
+            <button
+              onTouchStart={(e) => { e.preventDefault(); handleBlockButton(true); }}
+              onTouchEnd={(e) => { e.preventDefault(); handleBlockButton(false); }}
+              onMouseDown={() => handleBlockButton(true)}
+              onMouseUp={() => handleBlockButton(false)}
+              onMouseLeave={() => handleBlockButton(false)}
+              disabled={!equippedSecondary || equippedSecondary.type !== 'shield'}
+              className="w-14 h-14 bg-blue-600 border-4 border-black text-2xl 
+                       active:bg-blue-800 disabled:opacity-40 disabled:cursor-not-allowed
+                       shadow-[3px_3px_0_#000] active:shadow-none active:translate-x-[3px] active:translate-y-[3px]
+                       touch-manipulation select-none"
+            >
+              🛡️
+            </button>
+            {/* Separate arrow button for bow */}
+            {equippedPrimary?.type === 'bow' && (
+              <button
+                onClick={onShoot}
+                disabled={arrowCount <= 0}
+                className="w-14 h-14 bg-green-600 border-4 border-black text-xl 
+                         active:bg-green-800 disabled:opacity-40 disabled:cursor-not-allowed
+                         shadow-[3px_3px_0_#000] active:shadow-none active:translate-x-[3px] active:translate-y-[3px]
+                         touch-manipulation select-none flex flex-col items-center justify-center"
+              >
+                <span>🏹</span>
+                <span className="text-[10px] text-white font-black">{arrowCount}</span>
+              </button>
+            )}
+          </div>
+          
+          {/* Attack button - bigger */}
           <button
             onClick={handleAttackButton}
-            className="w-14 h-14 bg-red-500 border-4 border-black text-xl font-black 
+            className="w-20 h-16 bg-red-500 border-4 border-black text-2xl font-black 
                      active:bg-red-700
-                     shadow-[3px_3px_0_#000] active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
+                     shadow-[3px_3px_0_#000] active:shadow-none active:translate-x-[3px] active:translate-y-[3px]
+                     touch-manipulation select-none"
           >
-            {equippedPrimary?.type === 'bow' ? (
-              <span className="text-sm">🏹{arrowCount}</span>
-            ) : (
-              '⚔️'
-            )}
+            ⚔️
           </button>
         </div>
       </div>
 
       {/* Controls hint */}
       <div className="text-center text-xs text-gray-400 mt-2 font-bold" style={{ fontFamily: 'monospace' }}>
-        [WASD/חיצים] תנועה | [רווח] התקפה | [SHIFT] הגנה
+        [WASD/חיצים] תנועה | [קליק שמאלי/רווח] התקפה | [קליק ימני/SHIFT] הגנה
       </div>
     </div>
   );

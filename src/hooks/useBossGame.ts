@@ -311,6 +311,10 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
     }
   }, [sharedScore, setSharedScore]);
   
+  // Boss movement direction and speed
+  const bossDirection = useRef<number>(1); // 1 = right, -1 = left
+  const bossMoveCooldown = useRef<number>(0);
+  
   // Game loop for battle phase
   useEffect(() => {
     if (phase !== 'battle') return;
@@ -352,6 +356,47 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
         }
         
         return { ...prev, x: newX, y: newY, velocityY: newVelocityY, isJumping, facingRight };
+      });
+      
+      // Boss movement AI - move toward player but keep distance
+      setBossX(prev => {
+        const distanceToPlayer = prev - player.x;
+        const idealDistance = 80; // Boss tries to stay this far from player
+        const bossSpeed = currentBoss.speed || 2; // Boss speed based on boss data
+        
+        // Decrease cooldown
+        if (bossMoveCooldown.current > 0) {
+          bossMoveCooldown.current--;
+        }
+        
+        // Random direction changes
+        if (Math.random() < 0.01) {
+          bossDirection.current *= -1;
+          bossMoveCooldown.current = 30; // Brief pause after direction change
+        }
+        
+        // Chase player if too far
+        if (distanceToPlayer > idealDistance + 50) {
+          return Math.max(60, prev - bossSpeed);
+        }
+        // Back up if too close
+        if (distanceToPlayer < idealDistance - 30) {
+          return Math.min(ARENA_WIDTH - 60, prev + bossSpeed);
+        }
+        
+        // Random patrol movement when at ideal distance
+        if (bossMoveCooldown.current === 0 && Math.random() < 0.3) {
+          const move = bossDirection.current * bossSpeed * 0.5;
+          const newPos = prev + move;
+          // Keep boss in bounds
+          if (newPos < 60 || newPos > ARENA_WIDTH - 60) {
+            bossDirection.current *= -1;
+            return prev;
+          }
+          return newPos;
+        }
+        
+        return prev;
       });
       
       // Boss AI - attack with cooldown
