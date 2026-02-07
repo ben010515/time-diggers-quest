@@ -437,13 +437,14 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
     return () => clearInterval(gameLoop);
   }, [phase, currentBoss, bossX, player.x, player.y, player.isBlocking, player.defense, bossAttacking, inventory, setSharedScore]);
   
-  // Keyboard listeners
+  // Keyboard and mouse listeners
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       keysPressed.current.add(e.key.toLowerCase());
       
-      // Attack on click or key
+      // Attack on space or enter
       if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
         if (equippedPrimary?.type === 'bow') {
           shootArrow();
         } else {
@@ -465,14 +466,50 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
       }
     };
     
+    // LEFT CLICK = attack
+    const handleMouseDown = (e: MouseEvent) => {
+      if (phase !== 'battle') return;
+      
+      if (e.button === 0) { // Left click
+        e.preventDefault();
+        if (equippedPrimary?.type === 'bow') {
+          shootArrow();
+        } else {
+          attackBoss();
+        }
+      } else if (e.button === 2) { // Right click
+        e.preventDefault();
+        block(true);
+      }
+    };
+    
+    const handleMouseUp = (e: MouseEvent) => {
+      if (e.button === 2) { // Right click release
+        block(false);
+      }
+    };
+    
+    // Prevent context menu on right click
+    const handleContextMenu = (e: MouseEvent) => {
+      if (phase === 'battle') {
+        e.preventDefault();
+      }
+    };
+    
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('contextmenu', handleContextMenu);
     
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('contextmenu', handleContextMenu);
     };
-  }, [attackBoss, shootArrow, block, equippedPrimary]);
+  }, [phase, attackBoss, shootArrow, block, equippedPrimary]);
   
   return {
     // Phase
