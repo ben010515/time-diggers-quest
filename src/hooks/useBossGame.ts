@@ -102,7 +102,7 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
     setDigsRemaining(totalSlots);
   }, [extraDigs, luckBonus]);
   
-  // Initialize game
+  // Initialize game - RESET EVERYTHING
   const initBossGame = useCallback(() => {
     setCurrentBossIndex(0);
     setPhase('dig');
@@ -110,6 +110,9 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
     setEquippedPrimary(null);
     setEquippedSecondary(null);
     setArrowCount(0);
+    setHasBoazBen(false); // Reset Boaz Ben so it can be bought again!
+    setLuckBonus(0); // Reset luck
+    setExtraDigs(0); // Reset extra digs
     setPlayer({
       x: 50,
       y: GROUND_Y,
@@ -351,8 +354,8 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
         return { ...prev, x: newX, y: newY, velocityY: newVelocityY, isJumping, facingRight };
       });
       
-      // Boss AI
-      if (Math.random() < 0.02) {
+      // Boss AI - attack with cooldown
+      if (Math.random() < 0.03 && !bossAttacking) {
         setBossAttacking(true);
         
         if (currentBoss.attackType === 'ranged' && currentBoss.projectileIcon) {
@@ -360,15 +363,29 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
           setProjectiles(prev => [...prev, {
             x: bossX,
             y: GROUND_Y - 30,
-            velocityX: -8,
+            velocityX: -6,
             icon: currentBoss.projectileIcon!
           }]);
         } else if (currentBoss.attackType === 'jump') {
           // Jump toward player
-          setBossX(prev => Math.max(player.x + 50, prev - 100));
+          setBossX(prev => Math.max(player.x + 50, prev - 80));
+        } else if (currentBoss.attackType === 'melee') {
+          // Melee attack - check if in range and deal damage ONCE
+          if (Math.abs(player.x - bossX) < 70) {
+            setPlayer(p => {
+              const blocked = p.isBlocking;
+              const damage = blocked ? Math.max(1, currentBoss.damage - p.defense * 2) : Math.max(1, currentBoss.damage - p.defense);
+              const newHp = p.hp - damage;
+              if (newHp <= 0) {
+                setPhase('defeat');
+              }
+              return { ...p, hp: Math.max(0, newHp) };
+            });
+          }
         }
         
-        setTimeout(() => setBossAttacking(false), 500);
+        // Attack cooldown
+        setTimeout(() => setBossAttacking(false), 800);
       }
       
       // Update projectiles
@@ -384,10 +401,10 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
         for (const proj of prev) {
           if (proj.velocityX < 0) { // Boss projectile
             if (Math.abs(proj.x - player.x) < 30 && Math.abs(proj.y - player.y) < 40) {
-              // Hit player
-              const blocked = player.isBlocking;
-              const damage = blocked ? Math.max(0, currentBoss.damage - player.defense * 2) : Math.max(0, currentBoss.damage - player.defense);
+              // Hit player - deal damage
               setPlayer(p => {
+                const blocked = p.isBlocking;
+                const damage = blocked ? Math.max(1, currentBoss.damage - p.defense * 2) : Math.max(1, currentBoss.damage - p.defense);
                 const newHp = p.hp - damage;
                 if (newHp <= 0) {
                   setPhase('defeat');
@@ -417,21 +434,6 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
         }
         return remaining;
       });
-      
-      // Check melee collision
-      if (bossAttacking && currentBoss.attackType === 'melee') {
-        if (Math.abs(player.x - bossX) < 60) {
-          const blocked = player.isBlocking;
-          const damage = blocked ? Math.max(0, currentBoss.damage - player.defense * 2) : Math.max(0, currentBoss.damage - player.defense);
-          setPlayer(p => {
-            const newHp = p.hp - damage;
-            if (newHp <= 0) {
-              setPhase('defeat');
-            }
-            return { ...p, hp: Math.max(0, newHp) };
-          });
-        }
-      }
       
     }, 1000 / 60);
     
