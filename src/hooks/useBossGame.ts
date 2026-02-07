@@ -130,7 +130,7 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
   
   // Handle dig cell click
   const handleDigClick = useCallback((r: number, c: number) => {
-    if (phase !== 'dig') return;
+    if (phase !== 'dig' || digsRemaining <= 0) return;
     
     const cell = digGrid[r][c];
     if (cell.state === 'revealed') return;
@@ -144,9 +144,10 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
       return;
     }
     
-    // Reveal cell
+    // Reveal cell - this counts as one dig regardless of content
     newGrid[r][c] = { ...cell, state: 'revealed', hitsRemaining: 0 };
     setDigGrid(newGrid);
+    setDigsRemaining(prev => prev - 1);
     
     if (cell.hasItem && cell.item) {
       // Add to inventory
@@ -155,9 +156,8 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
       } else {
         setInventory(prev => [...prev, cell.item!]);
       }
-      setDigsRemaining(prev => prev - 1);
     }
-  }, [phase, digGrid]);
+  }, [phase, digGrid, digsRemaining]);
   
   // Start battle
   const startBattle = useCallback(() => {

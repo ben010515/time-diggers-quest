@@ -16,6 +16,8 @@ interface BossBattleArena16BitProps {
   arrowCount: number;
 }
 
+const ARENA_DISPLAY_WIDTH = 450;
+
 export const BossBattleArena16Bit: React.FC<BossBattleArena16BitProps> = ({
   boss,
   bossHp,
@@ -142,10 +144,11 @@ export const BossBattleArena16Bit: React.FC<BossBattleArena16BitProps> = ({
 
         {/* Player - 16-bit sprite */}
         <div
-          className={`absolute transition-all duration-75 ${player.isAttacking ? 'animate-pulse' : ''}`}
+          className={`absolute transition-all duration-75 ${player.isAttacking ? 'scale-110' : ''} ${player.isBlocking ? 'brightness-150' : ''}`}
           style={{
             left: player.x,
-            bottom: 220 - player.y - 60,
+            bottom: 14 + (350 - player.y) * 0.4,
+            zIndex: 10,
           }}
         >
           <PixelSprite 
@@ -158,20 +161,52 @@ export const BossBattleArena16Bit: React.FC<BossBattleArena16BitProps> = ({
           {/* Equipped weapon indicator */}
           {equippedPrimary && (
             <div 
-              className="absolute -top-2 left-1/2 transform -translate-x-1/2 text-xs bg-black/50 px-1 rounded"
-              style={{ fontSize: '10px' }}
+              className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-sm"
+              style={{ fontSize: '14px', filter: 'drop-shadow(1px 1px 0 #000)' }}
             >
               {equippedPrimary.icon}
+            </div>
+          )}
+          
+          {/* Player attack effect */}
+          {player.isAttacking && (
+            <div 
+              className="absolute animate-ping"
+              style={{
+                left: player.facingRight ? '100%' : '-30px',
+                top: '30%',
+                width: '30px',
+                height: '30px',
+                background: 'radial-gradient(circle, #ffff00 0%, #ff8800 50%, transparent 70%)',
+                borderRadius: '50%',
+                zIndex: 15,
+              }}
+            />
+          )}
+          
+          {/* Block effect */}
+          {player.isBlocking && equippedSecondary && (
+            <div 
+              className="absolute animate-pulse"
+              style={{
+                left: player.facingRight ? '-10px' : '100%',
+                top: '20%',
+                fontSize: '24px',
+                filter: 'drop-shadow(0 0 5px #00aaff)',
+              }}
+            >
+              🛡️
             </div>
           )}
         </div>
 
         {/* Boss - 16-bit sprite */}
         <div
-          className={`absolute transition-all duration-200 ${bossAttacking ? 'animate-bounce' : ''}`}
+          className={`absolute transition-all duration-200 ${bossAttacking ? 'scale-110' : ''}`}
           style={{
-            right: 400 - bossX - 80,
+            left: bossX * 0.9,
             bottom: 14,
+            zIndex: 10,
           }}
         >
           <PixelSprite 
@@ -180,36 +215,77 @@ export const BossBattleArena16Bit: React.FC<BossBattleArena16BitProps> = ({
             size="xl"
             isAttacking={bossAttacking}
           />
+          
+          {/* Boss attack effect */}
+          {bossAttacking && (
+            <div 
+              className="absolute animate-ping"
+              style={{
+                right: '100%',
+                top: '30%',
+                width: '40px',
+                height: '40px',
+                background: `radial-gradient(circle, ${boss.color} 0%, ${boss.color}88 50%, transparent 70%)`,
+                borderRadius: '50%',
+                zIndex: 15,
+              }}
+            />
+          )}
         </div>
 
         {/* Projectiles - pixel style */}
         {projectiles.map((proj, idx) => (
           <div
             key={idx}
-            className="absolute flex items-center justify-center"
+            className="absolute flex items-center justify-center animate-pulse"
             style={{
-              left: proj.x,
-              bottom: 220 - proj.y - 20,
-              width: '16px',
-              height: '8px',
-              background: proj.velocityX > 0 ? '#C0C0C0' : boss.color,
+              left: proj.x * 0.9,
+              bottom: 14 + (350 - proj.y) * 0.4,
+              width: proj.velocityX > 0 ? '20px' : '24px',
+              height: proj.velocityX > 0 ? '8px' : '16px',
+              background: proj.velocityX > 0 
+                ? 'linear-gradient(90deg, #888 0%, #C0C0C0 50%, #fff 100%)'
+                : `linear-gradient(270deg, ${boss.color} 0%, ${boss.color}cc 100%)`,
               border: '2px solid #000',
-              transform: proj.velocityX < 0 ? 'scaleX(-1)' : 'none',
-              imageRendering: 'pixelated',
+              borderRadius: proj.velocityX > 0 ? '2px 8px 8px 2px' : '50%',
+              boxShadow: `0 0 8px ${proj.velocityX > 0 ? '#888' : boss.color}`,
+              zIndex: 20,
             }}
-          />
+          >
+            <span style={{ fontSize: '10px' }}>{proj.icon}</span>
+          </div>
         ))}
 
-        {/* Attack effect */}
+        {/* Melee attack effect from boss */}
         {bossAttacking && boss.attackType === 'melee' && (
           <div 
-            className="absolute w-8 h-8 bg-yellow-400 border-2 border-black animate-ping"
+            className="absolute animate-ping"
             style={{ 
-              right: 400 - bossX - 100, 
-              bottom: 50,
-              clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+              left: bossX * 0.9 - 50, 
+              bottom: 40,
+              width: '50px',
+              height: '50px',
+              background: `radial-gradient(circle, #ff4444 0%, #ff0000 50%, transparent 70%)`,
+              borderRadius: '50%',
+              zIndex: 15,
             }}
           />
+        )}
+        
+        {/* Jump attack warning */}
+        {bossAttacking && boss.attackType === 'jump' && (
+          <div 
+            className="absolute animate-bounce"
+            style={{ 
+              left: bossX * 0.9, 
+              bottom: 80,
+              fontSize: '30px',
+              filter: 'drop-shadow(0 0 10px #ff0000)',
+              zIndex: 15,
+            }}
+          >
+            ⚠️
+          </div>
         )}
       </div>
 
