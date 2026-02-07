@@ -478,11 +478,11 @@ export const BossBattleArena16Bit: React.FC<BossBattleArena16BitProps> = ({
           </button>
           <div className="flex gap-1">
             <button
-              onTouchStart={(e) => { e.preventDefault(); handleLeftButton(true); }}
-              onTouchEnd={(e) => { e.preventDefault(); handleLeftButton(false); }}
-              onMouseDown={() => handleLeftButton(true)}
-              onMouseUp={() => handleLeftButton(false)}
-              onMouseLeave={() => handleLeftButton(false)}
+              onTouchStart={(e) => { e.preventDefault(); handleRightButton(true); }}
+              onTouchEnd={(e) => { e.preventDefault(); handleRightButton(false); }}
+              onMouseDown={() => handleRightButton(true)}
+              onMouseUp={() => handleRightButton(false)}
+              onMouseLeave={() => handleRightButton(false)}
               className="w-14 h-14 bg-gray-700 border-4 border-black text-white text-2xl font-black 
                        active:bg-gray-900 shadow-[3px_3px_0_#000] active:shadow-none active:translate-x-[3px] active:translate-y-[3px]
                        touch-manipulation select-none"
@@ -491,11 +491,11 @@ export const BossBattleArena16Bit: React.FC<BossBattleArena16BitProps> = ({
             </button>
             <div className="w-14 h-14" /> {/* Spacer */}
             <button
-              onTouchStart={(e) => { e.preventDefault(); handleRightButton(true); }}
-              onTouchEnd={(e) => { e.preventDefault(); handleRightButton(false); }}
-              onMouseDown={() => handleRightButton(true)}
-              onMouseUp={() => handleRightButton(false)}
-              onMouseLeave={() => handleRightButton(false)}
+              onTouchStart={(e) => { e.preventDefault(); handleLeftButton(true); }}
+              onTouchEnd={(e) => { e.preventDefault(); handleLeftButton(false); }}
+              onMouseDown={() => handleLeftButton(true)}
+              onMouseUp={() => handleLeftButton(false)}
+              onMouseLeave={() => handleLeftButton(false)}
               className="w-14 h-14 bg-gray-700 border-4 border-black text-white text-2xl font-black 
                        active:bg-gray-900 shadow-[3px_3px_0_#000] active:shadow-none active:translate-x-[3px] active:translate-y-[3px]
                        touch-manipulation select-none"
