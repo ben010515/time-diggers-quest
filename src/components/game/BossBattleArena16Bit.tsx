@@ -293,13 +293,16 @@ export const BossBattleArena16Bit: React.FC<BossBattleArena16BitProps> = ({
           )}
         </div>
 
-        {/* Boss - 16-bit sprite */}
+        {/* Boss - 16-bit sprite with animations */}
         <div
-          className={`absolute transition-all duration-200 ${bossAttacking ? 'scale-110' : ''}`}
+          className={`absolute transition-all duration-200 ${bossAttacking ? 'boss-attack-animation' : 'boss-idle-animation'}`}
           style={{
             left: bossX,
             bottom: 14,
             zIndex: 10,
+            animation: bossAttacking 
+              ? 'bossAttack 0.3s ease-in-out' 
+              : 'bossIdle 2s ease-in-out infinite',
           }}
         >
           <PixelSprite 
@@ -309,22 +312,80 @@ export const BossBattleArena16Bit: React.FC<BossBattleArena16BitProps> = ({
             isAttacking={bossAttacking}
           />
           
-          {/* Boss attack effect */}
-          {bossAttacking && (
+          {/* Boss attack effect - different per attack type */}
+          {bossAttacking && boss.attackType === 'melee' && (
             <div 
-              className="absolute animate-ping"
+              className="absolute"
               style={{
-                right: '100%',
-                top: '30%',
-                width: '40px',
-                height: '40px',
-                background: `radial-gradient(circle, ${boss.color} 0%, ${boss.color}88 50%, transparent 70%)`,
+                right: '80%',
+                top: '20%',
+                width: '60px',
+                height: '60px',
+                background: `radial-gradient(circle, ${boss.color} 0%, transparent 70%)`,
                 borderRadius: '50%',
+                animation: 'meleeSwing 0.3s ease-out',
                 zIndex: 15,
               }}
             />
           )}
+          
+          {bossAttacking && boss.attackType === 'ranged' && (
+            <div 
+              className="absolute animate-pulse"
+              style={{
+                right: '60%',
+                top: '40%',
+                fontSize: '24px',
+                filter: `drop-shadow(0 0 10px ${boss.color})`,
+                animation: 'rangedCharge 0.3s ease-out',
+              }}
+            >
+              {boss.projectileIcon}
+            </div>
+          )}
+          
+          {bossAttacking && boss.attackType === 'jump' && (
+            <div 
+              className="absolute"
+              style={{
+                left: '50%',
+                bottom: '-20px',
+                transform: 'translateX(-50%)',
+                width: '80px',
+                height: '20px',
+                background: 'radial-gradient(ellipse, rgba(0,0,0,0.5) 0%, transparent 70%)',
+                animation: 'jumpShadow 0.3s ease-out',
+              }}
+            />
+          )}
         </div>
+        
+        {/* Boss damage indicator */}
+        <style>{`
+          @keyframes bossIdle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+          }
+          @keyframes bossAttack {
+            0% { transform: translateX(0) scale(1); }
+            50% { transform: translateX(-20px) scale(1.15); }
+            100% { transform: translateX(0) scale(1); }
+          }
+          @keyframes meleeSwing {
+            0% { transform: rotate(0deg) scale(0); opacity: 1; }
+            100% { transform: rotate(-45deg) scale(1.5); opacity: 0; }
+          }
+          @keyframes rangedCharge {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          @keyframes jumpShadow {
+            0% { transform: translateX(-50%) scale(0.5); }
+            50% { transform: translateX(-50%) scale(1.5); }
+            100% { transform: translateX(-50%) scale(1); }
+          }
+        `}</style>
 
         {/* Projectiles - pixel style */}
         {projectiles.map((proj, idx) => (
@@ -349,36 +410,37 @@ export const BossBattleArena16Bit: React.FC<BossBattleArena16BitProps> = ({
           </div>
         ))}
 
-        {/* Melee attack effect from boss */}
+        {/* Melee attack shockwave from boss */}
         {bossAttacking && boss.attackType === 'melee' && (
           <div 
-            className="absolute animate-ping"
+            className="absolute"
             style={{ 
-              left: bossX * 0.9 - 50, 
-              bottom: 40,
-              width: '50px',
-              height: '50px',
-              background: `radial-gradient(circle, #ff4444 0%, #ff0000 50%, transparent 70%)`,
+              left: bossX - 60, 
+              bottom: 14,
+              width: '70px',
+              height: '70px',
+              background: `radial-gradient(circle, ${boss.color}88 0%, transparent 70%)`,
               borderRadius: '50%',
+              animation: 'meleeSwing 0.3s ease-out',
               zIndex: 15,
             }}
           />
         )}
         
-        {/* Jump attack warning */}
+        {/* Jump attack landing effect */}
         {bossAttacking && boss.attackType === 'jump' && (
           <div 
-            className="absolute animate-bounce"
+            className="absolute"
             style={{ 
-              left: bossX * 0.9, 
-              bottom: 80,
-              fontSize: '30px',
-              filter: 'drop-shadow(0 0 10px #ff0000)',
+              left: bossX - 20, 
+              bottom: 10,
+              width: '120px',
+              height: '20px',
+              background: 'radial-gradient(ellipse, rgba(255,100,0,0.6) 0%, transparent 70%)',
+              animation: 'jumpShadow 0.5s ease-out',
               zIndex: 15,
             }}
-          >
-            ⚠️
-          </div>
+          />
         )}
       </div>
 
