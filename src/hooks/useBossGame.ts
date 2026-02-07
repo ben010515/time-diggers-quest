@@ -197,21 +197,23 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
     }
   }, [equippedPrimary, equippedSecondary]);
   
-  // Attack boss
+  // Attack boss (with weapon or fists)
   const attackBoss = useCallback(() => {
-    if (phase !== 'battle' || !equippedPrimary) return;
+    if (phase !== 'battle') return;
     
     setPlayer(prev => ({ ...prev, isAttacking: true }));
     
-    // Check if in range
+    // Check if in range - fists have short range, weapons have longer
     const distance = Math.abs(player.x - bossX);
-    const inRange = distance < equippedPrimary.range;
+    const attackRange = equippedPrimary ? equippedPrimary.range : 50; // Fist range = 50
+    const inRange = distance < attackRange;
     
     if (inRange) {
-      let damage = equippedPrimary.damage;
+      // Fist damage = 3, weapon damage = weapon.damage
+      let damage = equippedPrimary ? equippedPrimary.damage : 3;
       
       // Check for Boaz Ben sword against dragon
-      if (currentBoss.id === 'diamond_dragon' && equippedPrimary.id === 'boaz_ben') {
+      if (currentBoss.id === 'diamond_dragon' && equippedPrimary?.id === 'boaz_ben') {
         damage = 99999;
       }
       
