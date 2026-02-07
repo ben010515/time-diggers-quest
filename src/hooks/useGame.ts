@@ -272,8 +272,21 @@ export const useGame = () => {
         // Lucky charm just opens the cheat menu (handled in Shop component)
         break;
       case 'pickaxe_upgrade':
-        setPickaxeLevel(prev => prev + 1);
-        setOwnedItems(prev => [...prev, item.id]);
+        setPickaxeLevel(prev => {
+          const newLevel = prev + 1;
+          // Regenerate grid with new hit requirements
+          const newHitsRequired = getHitsRequired(completedLevels, newLevel);
+          setGridData(currentGrid => 
+            currentGrid.map(row => 
+              row.map(cell => 
+                cell.state === 'hidden' 
+                  ? { ...cell, hitsRemaining: Math.min(cell.hitsRemaining, newHitsRequired), maxHits: newHitsRequired }
+                  : cell
+              )
+            )
+          );
+          return newLevel;
+        });
         break;
       case 'extra_life':
         setMaxHp(150);

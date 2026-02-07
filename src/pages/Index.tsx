@@ -12,8 +12,8 @@ import { DiscoveryModal } from '@/components/game/DiscoveryModal';
 import { FailModal } from '@/components/game/FailModal';
 import { CheatModal } from '@/components/game/CheatModal';
 import { StatsPanel } from '@/components/game/StatsPanel';
-import { ModeSelection, GameMode } from '@/components/game/ModeSelection';
-import { BossGameMode } from '@/components/game/BossGameMode';
+import { ModeSelection16Bit, GameMode } from '@/components/game/ModeSelection16Bit';
+import { BossGameMode16Bit } from '@/components/game/BossGameMode16Bit';
 
 const Index = () => {
   const [gameMode, setGameMode] = useState<GameMode | null>(null);
@@ -69,13 +69,13 @@ const Index = () => {
 
   // Show mode selection if no mode chosen
   if (!gameMode) {
-    return <ModeSelection onSelectMode={setGameMode} />;
+    return <ModeSelection16Bit onSelectMode={setGameMode} />;
   }
 
   // Boss battle mode
   if (gameMode === 'boss_battle') {
     return (
-      <BossGameMode 
+      <BossGameMode16Bit 
         score={score} 
         setScore={setScore} 
         onBackToMenu={() => setGameMode(null)} 
