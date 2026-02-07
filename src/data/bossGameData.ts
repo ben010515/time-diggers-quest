@@ -66,6 +66,7 @@ export interface Boss {
   level: number;
   hp: number;
   damage: number;
+  speed: number; // Boss movement speed
   attackType: 'melee' | 'ranged' | 'jump';
   projectileIcon?: string;
   color: string;
@@ -81,6 +82,7 @@ export const BOSSES: Boss[] = [
     level: 1,
     hp: 50,
     damage: 5,
+    speed: 1.5,
     attackType: 'melee',
     color: '#F4D03F',
     reward: 10,
@@ -93,6 +95,7 @@ export const BOSSES: Boss[] = [
     level: 2,
     hp: 70,
     damage: 6,
+    speed: 1.8,
     attackType: 'ranged',
     projectileIcon: '🪵',
     color: '#8B4513',
@@ -106,6 +109,7 @@ export const BOSSES: Boss[] = [
     level: 3,
     hp: 100,
     damage: 7,
+    speed: 1.2,
     attackType: 'jump',
     color: '#808080',
     reward: 30,
@@ -118,6 +122,7 @@ export const BOSSES: Boss[] = [
     level: 4,
     hp: 130,
     damage: 8,
+    speed: 2.0,
     attackType: 'ranged',
     projectileIcon: '⚫',
     color: '#2C3E50',
@@ -131,6 +136,7 @@ export const BOSSES: Boss[] = [
     level: 5,
     hp: 160,
     damage: 9,
+    speed: 1.6,
     attackType: 'ranged',
     projectileIcon: '🟤',
     color: '#CD853F',
@@ -144,6 +150,7 @@ export const BOSSES: Boss[] = [
     level: 6,
     hp: 200,
     damage: 10,
+    speed: 2.2,
     attackType: 'melee',
     color: '#C0C0C0',
     reward: 60,
@@ -156,6 +163,7 @@ export const BOSSES: Boss[] = [
     level: 7,
     hp: 250,
     damage: 11,
+    speed: 2.5,
     attackType: 'ranged',
     projectileIcon: '🪙',
     color: '#FFD700',
@@ -169,6 +177,7 @@ export const BOSSES: Boss[] = [
     level: 8,
     hp: 300,
     damage: 12,
+    speed: 2.8,
     attackType: 'melee',
     color: '#FFFACD',
     reward: 80,
@@ -181,6 +190,7 @@ export const BOSSES: Boss[] = [
     level: 9,
     hp: 400,
     damage: 14,
+    speed: 3.0,
     attackType: 'ranged',
     projectileIcon: '🔥',
     color: '#FF4500',
@@ -194,6 +204,7 @@ export const BOSSES: Boss[] = [
     level: 10,
     hp: 99999, // Almost invincible
     damage: 18,
+    speed: 3.5,
     attackType: 'ranged',
     projectileIcon: '💎',
     color: '#00FFFF',
