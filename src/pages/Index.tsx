@@ -88,6 +88,17 @@ const Index = () => {
   return (
     <div className="h-screen overflow-hidden flex items-center justify-center p-2">
       <div className="retro-box max-w-[500px] w-full h-[95vh] flex flex-col">
+        {/* Back to menu button */}
+        <div className="flex justify-between items-center px-2 py-1 bg-amber-100 border-b-4 border-black">
+          <button 
+            onClick={() => setGameMode(null)}
+            className="px-2 py-1 text-xs font-black bg-gray-200 border-2 border-black hover:bg-gray-300"
+          >
+            ◀ תפריט ראשי
+          </button>
+          <span className="text-xs font-bold text-amber-700">מצב ארכיאולוגיה</span>
+        </div>
+        
         <GameHeader 
           eraName={currentEra.name} 
           location={currentEra.location}
