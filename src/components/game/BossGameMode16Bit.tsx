@@ -47,7 +47,8 @@ export const BossGameMode16Bit: React.FC<BossGameMode16BitProps> = ({ score, set
     initBossGame();
   }, []);
 
-  const canStartBattle = digsRemaining === 0 || inventory.length > 0;
+  // Can always start battle, even without weapons
+  const canStartBattle = true;
 
   return (
     <div 
