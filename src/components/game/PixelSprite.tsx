@@ -1,4 +1,5 @@
 import React from 'react';
+import { Weapon, WEAPON_GRADES } from '@/data/bossGameData';
 
 interface PixelSpriteProps {
   type: 'player' | 'boss';
@@ -8,6 +9,8 @@ interface PixelSpriteProps {
   isAttacking?: boolean;
   isBlocking?: boolean;
   className?: string;
+  equippedPrimary?: Weapon | null;
+  equippedSecondary?: Weapon | null;
 }
 
 // 16-bit style sprite patterns using CSS
@@ -19,12 +22,21 @@ export const PixelSprite: React.FC<PixelSpriteProps> = ({
   isAttacking = false,
   isBlocking = false,
   className = '',
+  equippedPrimary = null,
+  equippedSecondary = null,
 }) => {
   const sizeClasses = {
     sm: 'w-8 h-8',
     md: 'w-12 h-12',
     lg: 'w-16 h-16',
     xl: 'w-20 h-20',
+  };
+
+  const sizePixels = {
+    sm: 32,
+    md: 48,
+    lg: 64,
+    xl: 80,
   };
 
   const getBossSprite = (bossId: string) => {
@@ -43,7 +55,16 @@ export const PixelSprite: React.FC<PixelSpriteProps> = ({
     return sprites[bossId] || sprites.sand_boss;
   };
 
+  const getWeaponColor = (weapon: Weapon | null) => {
+    if (!weapon) return '#888';
+    return WEAPON_GRADES[weapon.grade]?.color || '#888';
+  };
+
   if (type === 'player') {
+    const weaponColor = getWeaponColor(equippedPrimary);
+    const shieldColor = getWeaponColor(equippedSecondary);
+    const spriteSize = sizePixels[size];
+    
     return (
       <div 
         className={`relative ${sizeClasses[size]} ${className}`}
@@ -71,21 +92,56 @@ export const PixelSprite: React.FC<PixelSpriteProps> = ({
           {/* Boots */}
           <rect x="4" y="14" width="3" height="2" fill="#8B4513" />
           <rect x="9" y="14" width="3" height="2" fill="#8B4513" />
-          {/* Sword (when attacking) */}
-          {isAttacking && (
+          
+          {/* Weapon in right hand */}
+          {equippedPrimary && equippedPrimary.type === 'sword' && (
             <>
-              <rect x="14" y="2" width="2" height="8" fill="#C0C0C0" />
-              <rect x="13" y="6" width="4" height="2" fill="#FFD700" />
+              {/* Sword blade */}
+              <rect x="14" y={isAttacking ? 0 : 2} width="2" height={isAttacking ? 10 : 8} fill={weaponColor} />
+              <rect x="14" y={isAttacking ? 0 : 2} width="1" height={isAttacking ? 10 : 8} fill="#fff" fillOpacity="0.3" />
+              {/* Sword handle */}
+              <rect x="13" y={isAttacking ? 8 : 6} width="4" height="2" fill="#8B4513" />
             </>
           )}
-          {/* Shield (when blocking) */}
-          {isBlocking && (
+          {equippedPrimary && equippedPrimary.type === 'spear' && (
             <>
-              <rect x="0" y="4" width="4" height="6" fill="#8B4513" />
-              <rect x="1" y="5" width="2" height="4" fill="#FFD700" />
+              {/* Spear shaft */}
+              <rect x="14" y={isAttacking ? -2 : 0} width="1" height="12" fill="#8B4513" />
+              {/* Spear head */}
+              <polygon points={isAttacking ? "14,-2 15,-2 14.5,-5" : "14,0 15,0 14.5,-3"} fill={weaponColor} />
+            </>
+          )}
+          {equippedPrimary && equippedPrimary.type === 'bow' && (
+            <>
+              {/* Bow */}
+              <path d="M14,2 Q18,8 14,14" stroke={weaponColor} strokeWidth="1" fill="none" />
+              <line x1="14" y1="2" x2="14" y2="14" stroke="#8B4513" strokeWidth="0.5" />
+            </>
+          )}
+          {/* Fist indicator when no weapon */}
+          {!equippedPrimary && isAttacking && (
+            <circle cx="15" cy="7" r="2" fill="#FFD700" />
+          )}
+          
+          {/* Shield in left hand */}
+          {equippedSecondary && equippedSecondary.type === 'shield' && (
+            <>
+              <rect x={isBlocking ? -2 : 0} y="4" width="4" height="6" fill={shieldColor} />
+              <rect x={isBlocking ? -1 : 1} y="5" width="2" height="4" fill="#fff" fillOpacity="0.3" />
+              <rect x={isBlocking ? -1 : 1} y="6" width="2" height="2" fill={shieldColor} />
             </>
           )}
         </svg>
+        
+        {/* Weapon icon label */}
+        {equippedPrimary && (
+          <div 
+            className="absolute -top-4 left-1/2 transform -translate-x-1/2"
+            style={{ fontSize: spriteSize * 0.25, filter: 'drop-shadow(1px 1px 0 #000)' }}
+          >
+            {equippedPrimary.icon}
+          </div>
+        )}
       </div>
     );
   }

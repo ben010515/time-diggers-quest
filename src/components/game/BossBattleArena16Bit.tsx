@@ -157,16 +157,9 @@ export const BossBattleArena16Bit: React.FC<BossBattleArena16BitProps> = ({
             facingRight={player.facingRight}
             isAttacking={player.isAttacking}
             isBlocking={player.isBlocking}
+            equippedPrimary={equippedPrimary}
+            equippedSecondary={equippedSecondary}
           />
-          {/* Equipped weapon indicator */}
-          {equippedPrimary && (
-            <div 
-              className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-sm"
-              style={{ fontSize: '14px', filter: 'drop-shadow(1px 1px 0 #000)' }}
-            >
-              {equippedPrimary.icon}
-            </div>
-          )}
           
           {/* Player attack effect */}
           {player.isAttacking && (
@@ -177,7 +170,9 @@ export const BossBattleArena16Bit: React.FC<BossBattleArena16BitProps> = ({
                 top: '30%',
                 width: '30px',
                 height: '30px',
-                background: 'radial-gradient(circle, #ffff00 0%, #ff8800 50%, transparent 70%)',
+                background: equippedPrimary 
+                  ? 'radial-gradient(circle, #ffff00 0%, #ff8800 50%, transparent 70%)'
+                  : 'radial-gradient(circle, #ffcc00 0%, #ff6600 50%, transparent 70%)',
                 borderRadius: '50%',
                 zIndex: 15,
               }}
