@@ -18,9 +18,9 @@ const GRID_SIZE = 5;
 const BASE_DIG_SLOTS = 10;
 const GRAVITY = 0.8;
 const JUMP_FORCE = -15;
-const MOVE_SPEED = 5;
-const GROUND_Y = 350;
-const ARENA_WIDTH = 400;
+const MOVE_SPEED = 6;
+const GROUND_Y = 180; // Lower ground so player is visible
+const ARENA_WIDTH = 350; // Smaller arena so player can reach boss
 
 export const useBossGame = (sharedScore: number, setSharedScore: (score: number | ((prev: number) => number)) => void) => {
   // Game phase
@@ -163,11 +163,11 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
   const startBattle = useCallback(() => {
     setPhase('battle');
     setBossHp(currentBoss.hp);
-    setBossX(ARENA_WIDTH - 80);
+    setBossX(ARENA_WIDTH - 60); // Boss on the right side
     setProjectiles([]);
     setPlayer(prev => ({
       ...prev,
-      x: 50,
+      x: 30, // Player starts on the left
       y: GROUND_Y,
       velocityX: 0,
       velocityY: 0,
@@ -205,12 +205,14 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
     
     // Check if in range - fists have short range, weapons have longer
     const distance = Math.abs(player.x - bossX);
-    const attackRange = equippedPrimary ? equippedPrimary.range : 50; // Fist range = 50
+    const attackRange = equippedPrimary ? equippedPrimary.range : 60; // Fist range = 60
     const inRange = distance < attackRange;
     
+    console.log('Attack! Distance:', distance, 'Range:', attackRange, 'In range:', inRange);
+    
     if (inRange) {
-      // Fist damage = 3, weapon damage = weapon.damage
-      let damage = equippedPrimary ? equippedPrimary.damage : 3;
+      // Fist damage = 5, weapon damage = weapon.damage
+      let damage = equippedPrimary ? equippedPrimary.damage : 5;
       
       // Check for Boaz Ben sword against dragon
       if (currentBoss.id === 'diamond_dragon' && equippedPrimary?.id === 'boaz_ben') {
@@ -219,6 +221,8 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
       
       const newHp = bossHp - damage;
       setBossHp(Math.max(0, newHp));
+      
+      console.log('Hit! Damage:', damage, 'Boss HP:', newHp);
       
       if (currentBoss.id === 'diamond_dragon') {
         setDragonHits(prev => {
@@ -247,7 +251,7 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
     
     setTimeout(() => {
       setPlayer(prev => ({ ...prev, isAttacking: false }));
-    }, 200);
+    }, 300);
   }, [phase, equippedPrimary, player.x, bossX, bossHp, currentBoss, currentBossIndex, setSharedScore, generateDigGrid]);
   
   // Block with shield
