@@ -23,7 +23,7 @@ export const CheatModal: React.FC<CheatModalProps> = ({
   if (!isOpen) return null;
 
   const handleCodeSubmit = () => {
-    if (code === '1814') {
+    if (code === '010515') {
       setIsUnlocked(true);
     }
   };
@@ -55,7 +55,7 @@ export const CheatModal: React.FC<CheatModalProps> = ({
               onChange={(e) => setCode(e.target.value)}
               placeholder="הקלד קוד"
               className="text-center font-black text-xl mb-3 border-4 border-purple-400"
-              maxLength={4}
+              maxLength={6}
             />
             <button 
               onClick={handleCodeSubmit}
