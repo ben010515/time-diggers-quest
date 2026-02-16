@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Weapon, WEAPON_GRADES } from '@/data/bossGameData';
 
 interface BossInventoryProps {
@@ -16,6 +16,8 @@ export const BossInventory: React.FC<BossInventoryProps> = ({
   arrowCount,
   onEquip,
 }) => {
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+
   return (
     <div className="bg-white border-4 border-black p-3 w-full">
       <h3 className="font-black text-center mb-2 border-b-2 border-gray-300 pb-1">🎒 המלאי שלך</h3>
@@ -64,31 +66,12 @@ export const BossInventory: React.FC<BossInventoryProps> = ({
         {inventory.map((weapon, idx) => (
           <div 
             key={idx}
-            className="aspect-square border-2 border-gray-400 flex items-center justify-center text-xl cursor-pointer hover:bg-gray-100 relative group"
+            className={`aspect-square border-2 flex items-center justify-center text-xl cursor-pointer hover:bg-gray-100 relative ${selectedIdx === idx ? 'bg-yellow-100 ring-2 ring-yellow-400' : ''}`}
             style={{ borderColor: WEAPON_GRADES[weapon.grade].color }}
-            title={`${weapon.name} - לחץ להצטייד`}
+            title={weapon.name}
+            onClick={() => setSelectedIdx(selectedIdx === idx ? null : idx)}
           >
             <span>{weapon.icon}</span>
-            
-            {/* Tooltip on hover */}
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-black text-white text-xs p-2 rounded whitespace-nowrap z-10">
-              <div className="font-bold">{weapon.name}</div>
-              <div>נזק: {weapon.damage} | הגנה: {weapon.defense}</div>
-              <div className="flex gap-1 mt-1">
-                <button 
-                  onClick={(e) => { e.stopPropagation(); onEquip(weapon, 'primary'); }}
-                  className="bg-red-500 px-2 py-0.5 rounded text-xs"
-                >
-                  ראשי
-                </button>
-                <button 
-                  onClick={(e) => { e.stopPropagation(); onEquip(weapon, 'secondary'); }}
-                  className="bg-blue-500 px-2 py-0.5 rounded text-xs"
-                >
-                  משני
-                </button>
-              </div>
-            </div>
           </div>
         ))}
         
@@ -98,6 +81,28 @@ export const BossInventory: React.FC<BossInventoryProps> = ({
           </div>
         )}
       </div>
+
+      {/* Selected weapon actions */}
+      {selectedIdx !== null && inventory[selectedIdx] && (
+        <div className="mt-2 bg-gray-100 border-2 border-gray-300 p-2 rounded text-center">
+          <div className="font-bold text-sm">{inventory[selectedIdx].name}</div>
+          <div className="text-xs mb-1">נזק: {inventory[selectedIdx].damage} | הגנה: {inventory[selectedIdx].defense}</div>
+          <div className="flex gap-2 justify-center">
+            <button 
+              onClick={() => { onEquip(inventory[selectedIdx], 'primary'); setSelectedIdx(null); }}
+              className="bg-red-500 text-white px-3 py-1 rounded text-xs font-bold"
+            >
+              ראשי ⚔️
+            </button>
+            <button 
+              onClick={() => { onEquip(inventory[selectedIdx], 'secondary'); setSelectedIdx(null); }}
+              className="bg-blue-500 text-white px-3 py-1 rounded text-xs font-bold"
+            >
+              משני 🛡️
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
