@@ -404,7 +404,7 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
       });
       
       // Boss AI - attack with cooldown
-      if (Math.random() < 0.03 && !bossAttacking) {
+      if (Math.random() < 0.05 && !bossAttacking) {
         setBossAttacking(true);
         
         if (currentBoss.attackType === 'ranged' && currentBoss.projectileIcon) {
@@ -416,8 +416,23 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
             icon: currentBoss.projectileIcon!
           }]);
         } else if (currentBoss.attackType === 'jump') {
-          // Jump toward player
-          setBossX(prev => Math.max(player.x + 50, prev - 80));
+          // Jump toward player and deal damage on landing
+          setBossX(prev => Math.max(player.x + 30, prev - 100));
+          // Deal damage after jump lands
+          setTimeout(() => {
+            setPlayer(p => {
+              if (Math.abs(p.x - player.x) < 80) {
+                const blocked = p.isBlocking;
+                const damage = blocked ? Math.max(1, currentBoss.damage - p.defense * 2) : Math.max(1, currentBoss.damage - p.defense);
+                const newHp = p.hp - damage;
+                if (newHp <= 0) {
+                  setPhase('defeat');
+                }
+                return { ...p, hp: Math.max(0, newHp) };
+              }
+              return p;
+            });
+          }, 200);
         } else if (currentBoss.attackType === 'melee') {
           // Melee attack - check if in range and deal damage ONCE
           if (Math.abs(player.x - bossX) < 70) {
@@ -434,7 +449,7 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
         }
         
         // Attack cooldown
-        setTimeout(() => setBossAttacking(false), 800);
+        setTimeout(() => setBossAttacking(false), 600);
       }
       
       // Update projectiles
