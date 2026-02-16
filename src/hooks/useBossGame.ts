@@ -21,6 +21,7 @@ const JUMP_FORCE = -15;
 const MOVE_SPEED = 6;
 const GROUND_Y = 180; // Lower ground so player is visible
 const ARENA_WIDTH = 350; // Smaller arena so player can reach boss
+const JUMP_COOLDOWN = 500; // ms between jumps
 
 export const useBossGame = (sharedScore: number, setSharedScore: (score: number | ((prev: number) => number)) => void) => {
   // Game phase
@@ -67,6 +68,7 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
   
   // Input state
   const keysPressed = useRef<Set<string>>(new Set());
+  const lastJumpTime = useRef<number>(0);
   
   const currentBoss = BOSSES[currentBossIndex];
   
@@ -338,10 +340,12 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
           facingRight = true;
         }
         
-        // Jumping
-        if ((keysPressed.current.has('w') || keysPressed.current.has('arrowup') || keysPressed.current.has(' ')) && !isJumping) {
+        // Jumping with cooldown
+        const now = Date.now();
+        if ((keysPressed.current.has('w') || keysPressed.current.has('arrowup') || keysPressed.current.has(' ')) && !isJumping && (now - lastJumpTime.current > JUMP_COOLDOWN)) {
           newVelocityY = JUMP_FORCE;
           isJumping = true;
+          lastJumpTime.current = now;
         }
         
         // Apply gravity
