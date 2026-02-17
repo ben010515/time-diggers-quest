@@ -41,6 +41,7 @@ export const BossGameMode16Bit: React.FC<BossGameMode16BitProps> = ({ score, set
     defenseBonus,
     purchaseBossItem,
     initBossGame,
+    retryBoss,
   } = useBossGame(score, setScore);
 
   useEffect(() => {
@@ -339,6 +340,18 @@ export const BossGameMode16Bit: React.FC<BossGameMode16BitProps> = ({ score, set
               {currentBoss.name} הביס אותך
             </p>
             <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => { retryBoss(); }}
+                className="px-4 py-2 font-black"
+                style={{
+                  background: 'linear-gradient(180deg, #44ff44 0%, #22aa22 100%)',
+                  border: '4px solid #000',
+                  boxShadow: '3px 3px 0 #000',
+                  fontFamily: 'monospace',
+                }}
+              >
+                נסה שוב
+              </button>
               <button
                 onClick={() => { initBossGame(); }}
                 className="px-4 py-2 font-black"

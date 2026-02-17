@@ -41,6 +41,7 @@ export const BossGameMode: React.FC<BossGameModeProps> = ({ score, setScore, onB
     defenseBonus,
     purchaseBossItem,
     initBossGame,
+    retryBoss,
   } = useBossGame(score, setScore);
 
   useEffect(() => {
@@ -202,8 +203,14 @@ export const BossGameMode: React.FC<BossGameModeProps> = ({ score, setScore, onB
             <p className="text-gray-600 mb-4">{currentBoss.name} הביס אותך</p>
             <div className="flex gap-2">
               <button
-                onClick={() => { initBossGame(); }}
+                onClick={() => { retryBoss(); }}
                 className="pixel-btn pixel-btn-yellow px-4 py-2"
+              >
+                נסה שוב
+              </button>
+              <button
+                onClick={() => { initBossGame(); }}
+                className="pixel-btn px-4 py-2"
               >
                 התחל מחדש
               </button>
