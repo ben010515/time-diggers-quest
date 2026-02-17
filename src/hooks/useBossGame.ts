@@ -133,6 +133,27 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
     generateDigGrid();
   }, [generateDigGrid]);
   
+  // Retry same boss - keep inventory and progress, just restart the battle
+  const retryBoss = useCallback(() => {
+    setPhase('battle');
+    setBossHp(currentBoss.hp);
+    setBossX(ARENA_WIDTH - 60);
+    setProjectiles([]);
+    setPlayer(prev => ({
+      ...prev,
+      x: 30,
+      y: GROUND_Y,
+      velocityX: 0,
+      velocityY: 0,
+      isJumping: false,
+      hp: prev.maxHp,
+      defense: defenseBonus + (equippedSecondary?.defense || 0),
+      facingRight: true,
+      isAttacking: false,
+      isBlocking: false,
+    }));
+  }, [currentBoss, defenseBonus, equippedSecondary]);
+  
   // Handle dig cell click
   const handleDigClick = useCallback((r: number, c: number) => {
     if (phase !== 'dig' || digsRemaining <= 0) return;
@@ -616,6 +637,7 @@ export const useBossGame = (sharedScore: number, setSharedScore: (score: number 
     
     // Actions
     initBossGame,
+    retryBoss,
     generateDigGrid,
   };
 };
