@@ -1,4 +1,6 @@
 import React from 'react';
+import fllLogo from '@/assets/fll-logo.png';
+import teamLogo from '@/assets/team-2768-logo.png';
 
 export type GameMode = 'archaeology' | 'boss_battle';
 
