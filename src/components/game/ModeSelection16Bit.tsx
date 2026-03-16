@@ -170,8 +170,12 @@ export const ModeSelection16Bit: React.FC<ModeSelection16BitProps> = ({ onSelect
         
         {/* Logos */}
         <div className="mt-6 flex items-center justify-center gap-4">
-          <img src={fllLogo} alt="FIRST LEGO League" className="h-12 object-contain" />
-          <img src={teamLogo} alt="Team 2768" className="h-14 object-contain rounded-full" />
+          <a href="https://www.firstlegoleague.org" target="_blank" rel="noopener noreferrer">
+            <img src={fllLogo} alt="FIRST LEGO League" className="h-12 object-contain hover:opacity-80 transition-opacity cursor-pointer" />
+          </a>
+          <a href="https://dig-and-see.lovable.app" target="_blank" rel="noopener noreferrer">
+            <img src={teamLogo} alt="Team 2768" className="h-14 object-contain rounded-full hover:opacity-80 transition-opacity cursor-pointer" />
+          </a>
         </div>
 
         {/* Footer */}
