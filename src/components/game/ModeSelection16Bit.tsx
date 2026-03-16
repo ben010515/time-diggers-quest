@@ -1,4 +1,6 @@
 import React from 'react';
+import fllLogo from '@/assets/fll-logo.png';
+import teamLogo from '@/assets/team-2768-logo.png';
 
 export type GameMode = 'archaeology' | 'boss_battle';
 
@@ -166,8 +168,14 @@ export const ModeSelection16Bit: React.FC<ModeSelection16BitProps> = ({ onSelect
           </button>
         </div>
         
+        {/* Logos */}
+        <div className="mt-6 flex items-center justify-center gap-4">
+          <img src={fllLogo} alt="FIRST LEGO League" className="h-12 object-contain" />
+          <img src={teamLogo} alt="Team 2768" className="h-14 object-contain rounded-full" />
+        </div>
+
         {/* Footer */}
-        <div className="mt-6 text-center">
+        <div className="mt-3 text-center">
           <p 
             className="text-xs text-cyan-400 font-bold animate-pulse"
             style={{ fontFamily: 'monospace' }}
